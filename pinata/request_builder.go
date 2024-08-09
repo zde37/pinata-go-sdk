@@ -14,6 +14,8 @@ import (
 type RequestBuilder interface {
 }
 
+// requestBuilder is a struct that encapsulates the parameters and options for building an HTTP request.
+// It provides methods for adding path parameters, query parameters, headers, and request bodies.
 type requestBuilder struct {
 	client      *Client
 	method      string
@@ -25,11 +27,9 @@ type requestBuilder struct {
 	contentType string
 }
 
-type AsyncResult struct {
-	Response interface{}
-	Error    error
-}
-
+// AddPathParam adds a path parameter to the request builder. Path parameters are used to
+// specify dynamic parts of the request URL. The key is the name of the parameter, and the
+// value is the value to be substituted in the URL.
 func (rb *requestBuilder) AddPathParam(key, value string) *requestBuilder {
 	if rb.pathParams == nil {
 		rb.pathParams = make(map[string]string)
@@ -38,6 +38,9 @@ func (rb *requestBuilder) AddPathParam(key, value string) *requestBuilder {
 	return rb
 }
 
+// AddQueryParam adds a query parameter to the request builder. Query parameters are used to
+// specify additional options or filters for the request. The key is the name of the parameter,
+// and the value is the value to be included in the query string.
 func (rb *requestBuilder) AddQueryParam(key string, value interface{}) *requestBuilder {
 	if rb.queryParams == nil {
 		rb.queryParams = make(map[string]string)
@@ -46,6 +49,9 @@ func (rb *requestBuilder) AddQueryParam(key string, value interface{}) *requestB
 	return rb
 }
 
+// AddHeaders adds a header to the request builder. Headers are used to
+// specify additional metadata for the request. The key is the name of the
+// header, and the value is the value to be included in the header.
 func (rb *requestBuilder) AddHeaders(key, value string) *requestBuilder {
 	if rb.headers == nil {
 		rb.headers = make(map[string]string)
@@ -54,13 +60,22 @@ func (rb *requestBuilder) AddHeaders(key, value string) *requestBuilder {
 	return rb
 }
 
+// SetBody sets the request body and content type for the request builder.
+// The body parameter is an io.Reader that provides the request body data.
+// The contentType parameter specifies the MIME type of the request body.
+// The requestBuilder is returned to allow for method chaining.
 func (rb *requestBuilder) SetBody(body io.Reader, contentType string) *requestBuilder {
 	rb.body = body
 	rb.contentType = contentType
 	return rb
 }
 
-// Helper method for setting JSON body
+// SetJSONBody sets the request body to the provided interface{} value, marshaling it to JSON
+// and setting the Content-Type header to "application/json". It returns the requestBuilder
+// to allow for method chaining.
+//
+// If there is an error marshaling the provided value to JSON, the error is returned along
+// with the requestBuilder.
 func (rb *requestBuilder) SetJSONBody(body interface{}) (*requestBuilder, error) {
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
@@ -69,6 +84,10 @@ func (rb *requestBuilder) SetJSONBody(body interface{}) (*requestBuilder, error)
 	return rb.SetBody(bytes.NewReader(jsonBody), "application/json"), nil
 }
 
+// addListPinsQueryParams adds query parameters to the request builder for the ListFilesOptions.
+// It adds parameters for the CID, group ID, status, page limit, page offset, minimum and maximum
+// pin size, start and end times for pins and unpins, whether to include the total count,
+// and any metadata filters.
 func (rb *requestBuilder) addListPinsQueryParams(options *ListFilesOptions) *requestBuilder {
 	if options.Cid != "" {
 		rb.AddQueryParam("cid", options.Cid)
@@ -115,6 +134,23 @@ func (rb *requestBuilder) addListPinsQueryParams(options *ListFilesOptions) *req
 	return rb
 }
 
+// addListGroupsQueryParams adds query parameters to the request builder for the ListGroupsOptions.
+// It adds parameters for the name contains filter, the limit, and the offset.
+func (rb *requestBuilder) addListGroupsQueryParams(options *ListGroupsOptions) *requestBuilder {
+	if options.NameContains != "" {
+		rb.AddQueryParam("nameContains", options.NameContains)
+	}
+	if options.Limit > 0 {
+		rb.AddQueryParam("limit", options.Limit)
+	}
+	if options.Offset > 0 {
+		rb.AddQueryParam("offset", options.Offset)
+	}
+	return rb
+}
+
+// addListPinsByCidQueryParams adds query parameters to the request builder for the ListPinByCidOptions.
+// It adds parameters for the sort, status, IPFS pin hash, limit, and offset.
 func (rb *requestBuilder) addListPinsByCidQueryParams(options *ListPinByCidOptions) *requestBuilder {
 	if options.Sort != "" {
 		rb.AddQueryParam("sort", string(options.Sort))
@@ -134,6 +170,11 @@ func (rb *requestBuilder) addListPinsByCidQueryParams(options *ListPinByCidOptio
 	return rb
 }
 
+// buildURL constructs the full URL for the request by replacing path parameters
+// in the request path with their corresponding values, and adding any query
+// parameters to the URL.
+//
+// If any path parameters are not found in the request path, an error is returned.
 func (rb *requestBuilder) buildURL() (string, error) {
 	path := rb.path
 	for key, value := range rb.pathParams {
@@ -159,6 +200,8 @@ func (rb *requestBuilder) buildURL() (string, error) {
 	return reqURL.String(), nil
 }
 
+// Send sends the HTTP request and decodes the response into the provided interface.
+// If the response status code is not in the 2xx range, it will return an error with the response body.
 func (rb *requestBuilder) Send(v interface{}) error {
 	reqURL, err := rb.buildURL()
 	if err != nil {
