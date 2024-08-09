@@ -1,6 +1,13 @@
 package pinata
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"mime/multipart"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -30,7 +37,7 @@ type PinOptions struct {
 	} `json:"pinataOptions,omitempty"`
 }
 
-type PinByCidOptions struct {
+type PinByCidOptions struct { 
 	PinataOptions struct {
 		GroupId   string   `json:"groupId,omitempty"`
 		HostNodes []string `json:"hostNodes,omitempty"`
@@ -132,4 +139,177 @@ type PinPolicy struct {
 		DesiredReplicationCount int    `json:"desiredReplicationCount"`
 	} `json:"regions"`
 	Version int `json:"version"`
+}
+
+func (c *Client) PinFileToIPFS(path string, options *PinOptions) (*PinResponse, error) {
+	if path == "" {
+		return nil, fmt.Errorf("ERR: filepath is required")
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("ERR: failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	part, err := writer.CreateFormFile("file", filepath.Base(path))
+	if err != nil {
+		return nil, fmt.Errorf("ERR: failed to create form file: %w", err)
+	}
+
+	_, err = io.Copy(part, file)
+	if err != nil {
+		return nil, fmt.Errorf("ERR: failed to copy file content: %w", err)
+	}
+
+	if options != nil {
+		optionsJSON, err := json.Marshal(options)
+		if err != nil {
+			return nil, fmt.Errorf("ERR: failed to marshal options: %w", err)
+		}
+		err = writer.WriteField("pinataOptions", string(optionsJSON))
+		if err != nil {
+			return nil, fmt.Errorf("ERR: failed to write pinataOptions field: %w", err)
+		}
+	}
+
+	err = writer.Close()
+	if err != nil {
+		return nil, fmt.Errorf("ERR: failed to close multipart writer: %w", err)
+	}
+
+	var response PinResponse
+	err = c.NewRequest("POST", "/pinning/pinFileToIPFS").
+		SetBody(body, writer.FormDataContentType()).
+		Send(&response)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (c *Client) PinJSONToIPFS(data interface{}, options *PinOptions) (*PinResponse, error) {
+	if data == nil {
+		return nil, fmt.Errorf("ERR: jsonData is required")
+	}
+	payload := map[string]interface{}{
+		"pinataContent": data,
+	}
+
+	if options != nil {
+		payload["pinataOptions"] = options.PinataOptions
+		payload["pinataMetadata"] = options.PinataMetadata
+	}
+
+	req, err := c.NewRequest("POST", "/pinning/pinJSONToIPFS").SetJSONBody(payload)
+	if err != nil {
+		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
+	}
+
+	var response PinResponse
+	err = req.Send(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (c *Client) PinByCid(hashToPin string, options *PinByCidOptions) (*PinByCidResponse, error) {
+	if hashToPin == "" {
+		return nil, fmt.Errorf("ERR: hashToPin is required")
+	}
+	payload := map[string]interface{}{
+		"hashToPin": hashToPin,
+	}
+
+	if options != nil {
+		payload["pinataOptions"] = options.PinataOptions
+		payload["pinataMetadata"] = options.PinataMetadata
+	}
+
+	req, err := c.NewRequest("POST", "/pinning/pinByHash").SetJSONBody(payload)
+	if err != nil {
+		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
+	}
+
+	var response PinByCidResponse
+	err = req.Send(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (c *Client) ListFiles(options *ListFilesOptions) (*ListFilesResponse, error) {
+	req := c.NewRequest("GET", "/data/pinList")
+	if options != nil {
+		req.addListPinsQueryParams(options)
+	}
+
+	var response ListFilesResponse
+	err := req.Send(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (c *Client) ListPinByCidJobs(options *ListPinByCidOptions) (*ListPinByCidResponse, error) {
+	req := c.NewRequest("GET", "/pinning/pinJobs")
+	if options != nil {
+		req.addListPinsByCidQueryParams(options)
+	}
+
+	var response ListPinByCidResponse
+	err := req.Send(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (c *Client) UpdateFileMetadata(fileHash string, options *PinMetadataUpdateOptions) error {
+	if fileHash == "" || options == nil {
+		return fmt.Errorf("ERR: fileHash and options are required")
+	}
+
+	payload := make(map[string]interface{})
+	payload["ipfsPinHash"] = fileHash // "ipfsPinHash" wasn't shown in the docs site, inform pinata team
+	payload["name"] = options.Name
+	payload["keyvalues"] = options.KeyValues
+
+	req, err := c.NewRequest("PUT", "/pinning/hashMetadata").SetJSONBody(payload)
+	if err != nil {
+		return fmt.Errorf("ERR: failed to set JSON body: %w", err)
+	}
+
+	err = req.Send(nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Client) DeleteFile(cid string) error {
+	if cid == "" {
+		return fmt.Errorf("cid is required")
+	}
+
+	err := c.NewRequest("DELETE", "/pinning/unpin/{cid}").
+		AddPathParam("cid", cid).
+		Send(nil)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
