@@ -74,7 +74,7 @@ func (c *Client) GetGroup(groupID string) (*PinataGroup, error) {
 func (c *Client) ListGroups(options *ListGroupsOptions) ([]PinataGroup, error) {
 	req := c.NewRequest("GET", "/groups")
 	if options != nil {
-		req.addListGroupsQueryParams(options)
+		req.setListGroupsQueryParams(options)
 	}
 
 	var response []PinataGroup

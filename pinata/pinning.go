@@ -181,8 +181,8 @@ type ListPinByCidOptions struct {
 // Count is the total number of pins returned.
 // Rows is a slice of PinEntry structs representing the pins that match the request.
 type ListPinByCidResponse struct {
-	Count int        `json:"count"`
-	Rows  []PinEntry `json:"rows"`
+	Count int        `json:"count,omitempty"`
+	Rows  []PinEntry `json:"rows,omitempty"`
 }
 
 // PinEntry represents a single entry in the list of pinned content.
@@ -195,14 +195,14 @@ type ListPinByCidResponse struct {
 // HostNodes is a list of node IDs where the pinned content is currently hosted.
 // PinPolicy is the policy that governs how the pinned content is replicated across regions.
 type PinEntry struct {
-	ID          string      `json:"id"`
-	IPFSPinHash string      `json:"ipfs_pin_hash"`
-	DateQueued  string      `json:"date_queued"`
-	Name        string      `json:"name"`
-	Status      string      `json:"status"`
-	KeyValues   interface{} `json:"keyvalues"`
-	HostNodes   []string    `json:"host_nodes"`
-	PinPolicy   PinPolicy   `json:"pin_policy"`
+	ID          string      `json:"id,omitempty"`
+	IPFSPinHash string      `json:"ipfs_pin_hash,omitempty"`
+	DateQueued  string      `json:"date_queued,omitempty"`
+	Name        string      `json:"name,omitempty"`
+	Status      string      `json:"status,omitempty"`
+	KeyValues   interface{} `json:"keyvalues,omitempty"`
+	HostNodes   []string    `json:"host_nodes,omitempty"`
+	PinPolicy   PinPolicy   `json:"pin_policy,omitempty"`
 }
 
 // PinPolicy represents the policy for pinning a file to IPFS.
@@ -210,10 +210,10 @@ type PinEntry struct {
 // Version specifies the version of the pin policy.
 type PinPolicy struct {
 	Regions []struct {
-		ID                      string `json:"id"`
-		DesiredReplicationCount int    `json:"desiredReplicationCount"`
-	} `json:"regions"`
-	Version int `json:"version"`
+		ID                      string `json:"id,omitempty"`
+		DesiredReplicationCount int    `json:"desiredReplicationCount,omitempty"`
+	} `json:"regions,omitempty"`
+	Version int `json:"version,omitempty"`
 }
 
 // PinFileToIPFS uploads a file to IPFS and pins it to the Pinata network.
@@ -343,7 +343,7 @@ func (c *Client) PinByCid(hashToPin string, options *PinByCidOptions) (*PinByCid
 func (c *Client) ListFiles(options *ListFilesOptions) (*ListFilesResponse, error) {
 	req := c.NewRequest("GET", "/data/pinList")
 	if options != nil {
-		req.addListPinsQueryParams(options)
+		req.setListPinsQueryParams(options)
 	}
 
 	var response ListFilesResponse
@@ -361,7 +361,7 @@ func (c *Client) ListFiles(options *ListFilesOptions) (*ListFilesResponse, error
 func (c *Client) ListPinByCidJobs(options *ListPinByCidOptions) (*ListPinByCidResponse, error) {
 	req := c.NewRequest("GET", "/pinning/pinJobs")
 	if options != nil {
-		req.addListPinsByCidQueryParams(options)
+		req.setListPinsByCidQueryParams(options)
 	}
 
 	var response ListPinByCidResponse

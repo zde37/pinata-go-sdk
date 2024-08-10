@@ -84,11 +84,10 @@ func (rb *requestBuilder) SetJSONBody(body interface{}) (*requestBuilder, error)
 	return rb.SetBody(bytes.NewReader(jsonBody), "application/json"), nil
 }
 
-// addListPinsQueryParams adds query parameters to the request builder for the ListFilesOptions.
-// It adds parameters for the CID, group ID, status, page limit, page offset, minimum and maximum
-// pin size, start and end times for pins and unpins, whether to include the total count,
-// and any metadata filters.
-func (rb *requestBuilder) addListPinsQueryParams(options *ListFilesOptions) *requestBuilder {
+// setListPinsQueryParams sets the query parameters for the list pins request.
+// It takes a ListFilesOptions struct as input and adds the corresponding query
+// parameters to the requestBuilder.
+func (rb *requestBuilder) setListPinsQueryParams(options *ListFilesOptions) *requestBuilder {
 	if options.Cid != "" {
 		rb.AddQueryParam("cid", options.Cid)
 	}
@@ -134,9 +133,31 @@ func (rb *requestBuilder) addListPinsQueryParams(options *ListFilesOptions) *req
 	return rb
 }
 
-// addListGroupsQueryParams adds query parameters to the request builder for the ListGroupsOptions.
-// It adds parameters for the name contains filter, the limit, and the offset.
-func (rb *requestBuilder) addListGroupsQueryParams(options *ListGroupsOptions) *requestBuilder {
+// setListApiKeysQueryParams sets the query parameters for the ListApiKeys API endpoint.
+// It adds parameters like name, offset, revoked, limitedUse, and exhausted to the request builder.
+func (rb *requestBuilder) setListApiKeysQueryParams(options *ListApiKeysOptions) *requestBuilder {
+	if options.Name != "" {
+		rb.AddQueryParam("name", options.Name)
+	}
+	if options.Offset > 0 {
+		rb.AddQueryParam("offset", options.Offset)
+	}
+	if options.Revoked != nil {
+		rb.AddQueryParam("revoked", *options.Revoked)
+	}
+	if options.LimitedUse != nil {
+		rb.AddQueryParam("limitedUse", *options.LimitedUse)
+	}
+	if options.Exhausted != nil {
+		rb.AddQueryParam("exhausted", *options.Exhausted)
+	}
+
+	return rb
+}
+
+// setListGroupsQueryParams sets the query parameters for the ListGroups API endpoint.
+// It adds parameters like nameContains, limit, and offset to the request builder.
+func (rb *requestBuilder) setListGroupsQueryParams(options *ListGroupsOptions) *requestBuilder {
 	if options.NameContains != "" {
 		rb.AddQueryParam("nameContains", options.NameContains)
 	}
@@ -149,9 +170,14 @@ func (rb *requestBuilder) addListGroupsQueryParams(options *ListGroupsOptions) *
 	return rb
 }
 
-// addListPinsByCidQueryParams adds query parameters to the request builder for the ListPinByCidOptions.
-// It adds parameters for the sort, status, IPFS pin hash, limit, and offset.
-func (rb *requestBuilder) addListPinsByCidQueryParams(options *ListPinByCidOptions) *requestBuilder {
+// setListPinsByCidQueryParams sets the query parameters for the ListPinByCidOptions on the requestBuilder.
+// The supported query parameters are:
+//   - sort: Specifies the sort order for the returned pins.
+//   - status: Filters the returned pins by their status.
+//   - ipfs_pin_hash: Filters the returned pins by their IPFS pin hash.
+//   - limit: Limits the number of pins returned.
+//   - offset: Specifies the offset for pagination of the returned pins.
+func (rb *requestBuilder) setListPinsByCidQueryParams(options *ListPinByCidOptions) *requestBuilder {
 	if options.Sort != "" {
 		rb.AddQueryParam("sort", string(options.Sort))
 	}
