@@ -24,7 +24,7 @@ The SDK covers a wide range of Pinata API functionalities, including:
 | File | Purpose |
 | --- | --- |
 | `pinata/auth.go` | Contains the `Auth` struct and related functions for handling authentication with the Pinata API. Supports both API key/secret and JWT token authentication methods. |
-| `pinata/client.go` | Defines the main `Client` struct, which is the primary interface for interacting with the Pinata API. Includes the `NewClient` function for creating a new client instance and the `NewRequest` method for initiating API requests. |
+| `pinata/client.go` | Defines the main `Client` struct, which is the primary interface for interacting with the Pinata API. Includes the `New` function for creating a new client instance and the `NewRequest` method for initiating API requests. |
 | `pinata/pinning.go` | Contains core functionality for pinning operations. Includes structs and methods for pinning files to IPFS, pinning JSON to IPFS, listing pinned files, updating file metadata, deleting pins, and querying pins by CID. |
 | `pinata/request_builder.go` | Implements the `requestBuilder` struct and its methods. Handles the construction and execution of HTTP requests to the Pinata API. |
 | `pinata/group.go` | Implements functionality for managing Pinata groups, including creating, retrieving, updating, and deleting groups, as well as adding and removing CIDs from groups. |
@@ -49,7 +49,7 @@ import "github.com/zde37/pinata-go-sdk/pinata"
 3. Create a new client with your Pinata API credentials:
 ```go 
 auth := pinata.NewAuthWithJWT("your-jwt-token")
-client := pinata.NewClient(auth)
+client := pinata.New(auth)
 ```
 
 4. Use the client to interact with the Pinata API:
@@ -59,6 +59,11 @@ if err != nil {
     // handle error
 }
 fmt.Printf("File pinned successfully. IPFS hash: %s\n", response.IpfsHash)
+```
+
+## Run Tests
+```
+go test -v -cover ./... 
 ```
 
 ## License

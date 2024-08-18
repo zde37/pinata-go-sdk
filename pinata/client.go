@@ -22,11 +22,11 @@ type AuthTestResponse struct {
 	Message string `json:"message"`
 }
 
-// NewClient creates a new Pinata API client with the provided authentication credentials.
+// New creates a new Pinata API client with the provided authentication credentials.
 // It configures the HTTP client with a transport that has a maximum of 100 idle connections,
 // a maximum of 100 idle connections per host, and an idle connection timeout of 90 seconds.
 // The HTTP client also has a timeout of 30 seconds.
-func NewClient(auth *Auth) *Client {
+func New(auth *Auth) *Client {
 	transport := &http.Transport{
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,
@@ -62,13 +62,13 @@ func (c *Client) NewRequest(method, path string) *requestBuilder {
 // It sends a GET request to the "/data/testAuthentication" endpoint and returns the response
 // message indicating whether the authentication was successful or not.
 func (c *Client) TestAuthentication() (*AuthTestResponse, error) {
-    var response AuthTestResponse
-    err := c.NewRequest("GET", "/data/testAuthentication").
-        Send(&response)
+	var response AuthTestResponse
+	err := c.NewRequest("GET", "/data/testAuthentication").
+		Send(&response)
 
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    return &response, nil
+	return &response, nil
 }
