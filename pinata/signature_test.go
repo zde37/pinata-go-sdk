@@ -15,7 +15,7 @@ func TestAddCidSignature(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/ipfs/signature/test_cid", r.URL.Path)
-			require.Equal(t, "POST", r.Method)
+			require.Equal(t, http.MethodPost, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -101,7 +101,7 @@ func TestGetCidSignature(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/ipfs/signature/test_cid", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 
 			w.WriteHeader(http.StatusOK)
@@ -187,7 +187,7 @@ func TestRemoveCidSignature(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/ipfs/signature/test_cid", r.URL.Path)
-			require.Equal(t, "DELETE", r.Method)
+			require.Equal(t, http.MethodDelete, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			w.WriteHeader(http.StatusOK)
 		}))

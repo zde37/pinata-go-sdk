@@ -58,11 +58,11 @@ func TestNew(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	t.Run("basic request creation", func(t *testing.T) {
 		client := New(&Auth{JWT: "test_jwt"})
-		rb := client.NewRequest("GET", "/test/path")
+		rb := client.NewRequest(http.MethodGet, "/test/path")
 
 		require.NotNil(t, rb)
 		require.Equal(t, client, rb.client)
-		require.Equal(t, "GET", rb.method)
+		require.Equal(t, http.MethodGet, rb.method)
 		require.Equal(t, "/test/path", rb.path)
 		require.Empty(t, rb.pathParams)
 		require.Empty(t, rb.queryParams)
@@ -71,7 +71,7 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("different HTTP methods", func(t *testing.T) {
 		client := New(&Auth{JWT: "test_jwt"})
-		methods := []string{"POST", "PUT", "DELETE", "PATCH"}
+		methods := []string{http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch}
 
 		for _, method := range methods {
 			rb := client.NewRequest(method, "/test/path")
@@ -81,14 +81,14 @@ func TestNewRequest(t *testing.T) {
 
 	t.Run("path with special characters", func(t *testing.T) {
 		client := New(&Auth{JWT: "test_jwt"})
-		rb := client.NewRequest("GET", "/test/path with spaces/and/special-chars!@#$%^&*()")
+		rb := client.NewRequest(http.MethodGet, "/test/path with spaces/and/special-chars!@#$%^&*()")
 
 		require.Equal(t, "/test/path with spaces/and/special-chars!@#$%^&*()", rb.path)
 	})
 
 	t.Run("empty path", func(t *testing.T) {
 		client := New(&Auth{JWT: "test_jwt"})
-		rb := client.NewRequest("GET", "")
+		rb := client.NewRequest(http.MethodGet, "")
 
 		require.Equal(t, "", rb.path)
 	})
@@ -100,7 +100,7 @@ func TestTestAuthentication(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/data/testAuthentication", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte(`{"message":"Congratulations! You are authenticated"}`))

@@ -2,11 +2,12 @@ package pinata
 
 import (
 	"fmt"
+	"net/http"
 )
 
-// PinataGroup represents a group in the Pinata platform.
+// Group represents a group in the Pinata platform.
 // It contains information about the group, such as its ID, owner ID, name, creation time, and last update time.
-type PinataGroup struct {
+type Group struct {
 	ID        string `json:"id,omitempty"`
 	OwnerID   string `json:"user_id,omitempty"`
 	GroupName string `json:"name,omitempty"`
@@ -24,9 +25,9 @@ type ListGroupsOptions struct {
 }
 
 // CreateGroup creates a new Pinata group with the specified name.
-// It returns the newly created PinataGroup object, or an error if the creation failed.
+// It returns the newly created Group object, or an error if the creation failed.
 // The group name is required and cannot be an empty string.
-func (c *Client) CreateGroup(groupName string) (*PinataGroup, error) {
+func (c *client) CreateGroup(groupName string) (*Group, error) {
 	if groupName == "" {
 		return nil, fmt.Errorf("group name is required")
 	}
@@ -34,12 +35,12 @@ func (c *Client) CreateGroup(groupName string) (*PinataGroup, error) {
 	payload := make(map[string]string)
 	payload["name"] = groupName
 
-	req, err := c.NewRequest("POST", "/groups").SetJSONBody(payload)
+	req, err := c.NewRequest(http.MethodPost, "/groups").SetJSONBody(payload)
 	if err != nil {
 		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
 	}
 
-	var response PinataGroup
+	var response Group
 	err = req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -51,14 +52,14 @@ func (c *Client) CreateGroup(groupName string) (*PinataGroup, error) {
 //
 // If the provided groupID is empty, an error is returned.
 // Otherwise, the function makes a GET request to the "/groups/{id}" endpoint
-// and returns the corresponding PinataGroup struct, or an error if the request fails.
-func (c *Client) GetGroup(groupID string) (*PinataGroup, error) {
+// and returns the corresponding Group struct, or an error if the request fails.
+func (c *client) GetGroup(groupID string) (*Group, error) {
 	if groupID == "" {
 		return nil, fmt.Errorf("group id is required")
 	}
 
-	var response PinataGroup
-	err := c.NewRequest("GET", "/groups/{id}").
+	var response Group
+	err := c.NewRequest(http.MethodGet, "/groups/{id}").
 		AddPathParam("id", groupID).
 		Send(&response)
 
@@ -71,13 +72,13 @@ func (c *Client) GetGroup(groupID string) (*PinataGroup, error) {
 // ListGroups retrieves a list of Pinata groups based on the provided options.
 // If options is nil, the function will return all groups without any filtering or pagination.
 // Otherwise, the function will apply the specified limit and offset to the list of groups.
-func (c *Client) ListGroups(options *ListGroupsOptions) ([]PinataGroup, error) {
-	req := c.NewRequest("GET", "/groups")
+func (c *client) ListGroups(options *ListGroupsOptions) ([]Group, error) {
+	req := c.NewRequest(http.MethodGet, "/groups")
 	if options != nil {
 		req.setListGroupsQueryParams(options)
 	}
 
-	var response []PinataGroup
+	var response []Group
 	err := req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -91,8 +92,8 @@ func (c *Client) ListGroups(options *ListGroupsOptions) ([]PinataGroup, error) {
 // If the provided groupID or newGroupName is empty, an error is returned.
 // Otherwise, the function makes a PUT request to the "/groups/{id}" endpoint
 // with the new group name in the request body, and returns the updated
-// PinataGroup struct, or an error if the request fails.
-func (c *Client) UpdateGroup(groupID, newGroupName string) (*PinataGroup, error) {
+// Group struct, or an error if the request fails.
+func (c *client) UpdateGroup(groupID, newGroupName string) (*Group, error) {
 	if groupID == "" || newGroupName == "" {
 		return nil, fmt.Errorf("group id and new group name are required")
 	}
@@ -100,14 +101,14 @@ func (c *Client) UpdateGroup(groupID, newGroupName string) (*PinataGroup, error)
 	payload := make(map[string]string)
 	payload["name"] = newGroupName
 
-	req, err := c.NewRequest("PUT", "/groups/{id}").
+	req, err := c.NewRequest(http.MethodPut, "/groups/{id}").
 		AddPathParam("id", groupID).
 		SetJSONBody(payload)
 	if err != nil {
 		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
 	}
 
-	var response PinataGroup
+	var response Group
 	err = req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -117,7 +118,7 @@ func (c *Client) UpdateGroup(groupID, newGroupName string) (*PinataGroup, error)
 
 // AddCidToGroup adds the specified CIDs to the group with the given ID.
 // If the group ID or the list of CIDs is empty, an error is returned.
-func (c *Client) AddCidToGroup(groupID string, cids []string) error {
+func (c *client) AddCidToGroup(groupID string, cids []string) error {
 	if groupID == "" || len(cids) == 0 {
 		return fmt.Errorf("group id and at least one cid is required")
 	}
@@ -125,7 +126,7 @@ func (c *Client) AddCidToGroup(groupID string, cids []string) error {
 	payload := make(map[string][]string)
 	payload["cids"] = cids
 
-	req, err := c.NewRequest("PUT", "/groups/{id}/cids").
+	req, err := c.NewRequest(http.MethodPut, "/groups/{id}/cids").
 		AddPathParam("id", groupID).
 		SetJSONBody(payload)
 	if err != nil {
@@ -141,7 +142,7 @@ func (c *Client) AddCidToGroup(groupID string, cids []string) error {
 
 // RemoveCidFromGroup removes the specified CIDs from the group with the given ID.
 // If the group ID or the list of CIDs is empty, an error is returned.
-func (c *Client) RemoveCidFromGroup(groupID string, cids []string) error {
+func (c *client) RemoveCidFromGroup(groupID string, cids []string) error {
 	if groupID == "" || len(cids) == 0 {
 		return fmt.Errorf("group id and at least one cid is required")
 	}
@@ -149,7 +150,7 @@ func (c *Client) RemoveCidFromGroup(groupID string, cids []string) error {
 	payload := make(map[string][]string)
 	payload["cids"] = cids
 
-	req, err := c.NewRequest("DELETE", "/groups/{id}/cids").
+	req, err := c.NewRequest(http.MethodDelete, "/groups/{id}/cids").
 		AddPathParam("id", groupID).
 		SetJSONBody(payload)
 	if err != nil {
@@ -165,15 +166,15 @@ func (c *Client) RemoveCidFromGroup(groupID string, cids []string) error {
 
 // RemoveGroup removes the group with the specified ID.
 // If the group ID is empty, an error is returned.
-func (c *Client) RemoveGroup(groupID string) error {
+func (c *client) RemoveGroup(groupID string) error {
 	if groupID == "" {
 		return fmt.Errorf("group id is required")
 	}
 
-	err := c.NewRequest("DELETE", "/groups/{id}").
+	err := c.NewRequest(http.MethodDelete, "/groups/{id}").
 		AddPathParam("id", groupID).
 		Send(nil)
-		
+
 	if err != nil {
 		return err
 	}

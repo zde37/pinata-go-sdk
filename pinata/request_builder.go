@@ -11,13 +11,10 @@ import (
 	"time"
 )
 
-type RequestBuilder interface {
-}
-
 // requestBuilder is a struct that encapsulates the parameters and options for building an HTTP request.
 // It provides methods for adding path parameters, query parameters, headers, and request bodies.
 type requestBuilder struct {
-	client      *Client
+	client      *client
 	method      string
 	path        string
 	pathParams  map[string]string
@@ -208,6 +205,7 @@ func (rb *requestBuilder) buildURL() (string, error) {
 		if !strings.Contains(path, placeholder) {
 			return "", fmt.Errorf("path parameter %s not found in path", key)
 		}
+
 		path = strings.Replace(path, placeholder, url.PathEscape(value), -1)
 	}
 

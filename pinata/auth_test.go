@@ -70,7 +70,7 @@ func TestNewAuthWithJWT(t *testing.T) {
 	t.Run("setAuthHeader with JWT from NewAuthWithJWT", func(t *testing.T) {
 		jwt := "test_jwt_from_new_auth"
 		auth := NewAuthWithJWT(jwt)
-		req, _ := http.NewRequest("GET", "http://example.com", nil)
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
 		auth.setAuthHeader(req)
 
@@ -86,7 +86,7 @@ func TestSetAuthHeader(t *testing.T) {
 		auth := &Auth{
 			JWT: "test_jwt_token",
 		}
-		req, _ := http.NewRequest("GET", "http://example.com", nil)
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
 		auth.setAuthHeader(req)
 
@@ -101,7 +101,7 @@ func TestSetAuthHeader(t *testing.T) {
 			APIKey:    "test_api_key",
 			APISecret: "test_api_secret",
 		}
-		req, _ := http.NewRequest("GET", "http://example.com", nil)
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
 		auth.setAuthHeader(req)
 
@@ -112,7 +112,7 @@ func TestSetAuthHeader(t *testing.T) {
 
 	t.Run("with empty auth", func(t *testing.T) {
 		auth := &Auth{}
-		req, _ := http.NewRequest("GET", "http://example.com", nil)
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
 		auth.setAuthHeader(req)
 
@@ -127,7 +127,7 @@ func TestSetAuthHeader(t *testing.T) {
 			APIKey:    "test_api_key",
 			APISecret: "test_api_secret",
 		}
-		req, _ := http.NewRequest("GET", "http://example.com", nil)
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
 		auth.setAuthHeader(req)
 

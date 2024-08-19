@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 	"time"
@@ -51,13 +52,13 @@ type PinByCidOptions struct {
 	PinataMetadata PinataMetadata `json:"pinataMetadata,omitempty"`
 }
 
-// PinByCidResponse represents the response from pinning a file or directory to Pinata by its CID.
-// Id is the unique identifier for the pin.
+// pinByCidResponse represents the response from pinning a file or directory to Pinata by its CID.
+// ID is the unique identifier for the pin.
 // IpfsHash is the IPFS hash of the pinned content.
 // Status is the status of the pin operation.
 // Name is the name of the pinned content.
-type PinByCidResponse struct {
-	Id       string `json:"id,omitempty"`
+type pinByCidResponse struct {
+	ID       string `json:"id,omitempty"`
 	IpfsHash string `json:"ipfsHash,omitempty"`
 	Status   string `json:"status,omitempty"`
 	Name     string `json:"name,omitempty"`
@@ -71,12 +72,12 @@ type PinataMetadata struct {
 	KeyValues map[string]interface{} `json:"keyvalues,omitempty"`
 }
 
-// PinResponse represents the response from pinning a file or directory to Pinata.
+// pinResponse represents the response from pinning a file or directory to Pinata.
 // IpfsHash is the IPFS hash of the pinned content.
 // PinSize is the size of the pinned content in bytes.
 // Timestamp is the timestamp of when the content was pinned.
 // IsDuplicate indicates whether the pinned content is a duplicate of an existing pin.
-type PinResponse struct {
+type pinResponse struct {
 	IpfsHash    string `json:"IpfsHash,omitempty"`
 	PinSize     int    `json:"PinSize,omitempty"`
 	Timestamp   string `json:"Timestamp,omitempty"`
@@ -121,15 +122,15 @@ type ListFilesOptions struct {
 	IncludeCount bool                   `json:"includeCount,omitempty"`
 }
 
-// ListFilesResponse represents the response from listing files pinned to Pinata.
+// listFilesResponse represents the response from listing files pinned to Pinata.
 // Count is the total number of pinned files.
 // Rows is a slice of Pin structs representing the pinned files.
-type ListFilesResponse struct {
+type listFilesResponse struct {
 	Count int   `json:"count,omitempty"`
-	Rows  []Pin `json:"rows,omitempty"`
+	Rows  []pin `json:"rows,omitempty"`
 }
 
-// Pin represents a file or directory that has been pinned to Pinata.
+// pin represents a file or directory that has been pinned to Pinata.
 // ID is the unique identifier for the pinned content.
 // IPFSPinHash is the IPFS content identifier for the pinned content.
 // Size is the size of the pinned content in bytes.
@@ -140,7 +141,7 @@ type ListFilesResponse struct {
 // Regions is a slice of Region structs representing the regions where the pinned content is replicated.
 // MimeType is the MIME type of the pinned content.
 // NumberOfFiles is the number of files in the pinned content.
-type Pin struct {
+type pin struct {
 	ID            string                 `json:"id,omitempty"`
 	IPFSPinHash   string                 `json:"ipfs_pin_hash,omitempty"`
 	Size          int                    `json:"size,omitempty"`
@@ -148,16 +149,16 @@ type Pin struct {
 	DatePinned    string                 `json:"date_pinned,omitempty"`
 	DateUnpinned  string                 `json:"date_unpinned,omitempty"`
 	Metadata      map[string]interface{} `json:"metadata,omitempty"`
-	Regions       []Region               `json:"regions,omitempty"`
+	Regions       []region               `json:"regions,omitempty"`
 	MimeType      string                 `json:"mime_type,omitempty"`
 	NumberOfFiles int                    `json:"number_of_files,omitempty"`
 }
 
-// Region represents a geographic region where a file is pinned.
+// region represents a geographic region where a file is pinned.
 // RegionID is the unique identifier for the region.
 // CurrentReplicationCount is the current number of replicas of the file in the region.
 // DesiredReplicationCount is the desired number of replicas of the file in the region.
-type Region struct {
+type region struct {
 	RegionID                string `json:"regionId,omitempty"`
 	CurrentReplicationCount int    `json:"currentReplicationCount,omitempty"`
 	DesiredReplicationCount int    `json:"desiredReplicationCount,omitempty"`
@@ -177,15 +178,15 @@ type ListPinByCidOptions struct {
 	Offset      int       `json:"offset,omitempty"`
 }
 
-// ListPinByCidResponse represents the response from a request to list pins by IPFS content identifier (CID).
+// listPinByCidResponse represents the response from a request to list pins by IPFS content identifier (CID).
 // Count is the total number of pins returned.
 // Rows is a slice of PinEntry structs representing the pins that match the request.
-type ListPinByCidResponse struct {
+type listPinByCidResponse struct {
 	Count int        `json:"count,omitempty"`
-	Rows  []PinEntry `json:"rows,omitempty"`
+	Rows  []pinEntry `json:"rows,omitempty"`
 }
 
-// PinEntry represents a single entry in the list of pinned content.
+// pinEntry represents a single entry in the list of pinned content.
 // ID is the unique identifier for the pinned content.
 // IPFSPinHash is the IPFS content identifier (CID) for the pinned content.
 // DateQueued is the date the content was queued for pinning.
@@ -194,7 +195,7 @@ type ListPinByCidResponse struct {
 // KeyValues is a map of key-value pairs containing additional metadata about the pinned content.
 // HostNodes is a list of node IDs where the pinned content is currently hosted.
 // PinPolicy is the policy that governs how the pinned content is replicated across regions.
-type PinEntry struct {
+type pinEntry struct {
 	ID          string      `json:"id,omitempty"`
 	IPFSPinHash string      `json:"ipfs_pin_hash,omitempty"`
 	DateQueued  string      `json:"date_queued,omitempty"`
@@ -202,13 +203,13 @@ type PinEntry struct {
 	Status      string      `json:"status,omitempty"`
 	KeyValues   interface{} `json:"keyvalues,omitempty"`
 	HostNodes   []string    `json:"host_nodes,omitempty"`
-	PinPolicy   PinPolicy   `json:"pin_policy,omitempty"`
+	PinPolicy   pinPolicy   `json:"pin_policy,omitempty"`
 }
 
-// PinPolicy represents the policy for pinning a file to IPFS.
+// pinPolicy represents the policy for pinning a file to IPFS.
 // Regions specifies the geographic regions where the file should be pinned, and the desired replication count for each region.
 // Version specifies the version of the pin policy.
-type PinPolicy struct {
+type pinPolicy struct {
 	Regions []struct {
 		ID                      string `json:"id,omitempty"`
 		DesiredReplicationCount int    `json:"desiredReplicationCount,omitempty"`
@@ -224,7 +225,7 @@ type PinPolicy struct {
 //
 // Returns a PinResponse struct containing the IPFS hash and other details of the
 // pinned file, or an error if the operation fails.
-func (c *Client) PinFileToIPFS(path string, options *PinOptions) (*PinResponse, error) {
+func (c *client) PinFileToIPFS(path string, options *PinOptions) (*pinResponse, error) {
 	if path == "" {
 		return nil, fmt.Errorf("ERR: filepath is required")
 	}
@@ -264,8 +265,8 @@ func (c *Client) PinFileToIPFS(path string, options *PinOptions) (*PinResponse, 
 		return nil, fmt.Errorf("ERR: failed to close multipart writer: %w", err)
 	}
 
-	var response PinResponse
-	err = c.NewRequest("POST", "/pinning/pinFileToIPFS").
+	var response pinResponse
+	err = c.NewRequest(http.MethodPost, "/pinning/pinFileToIPFS").
 		SetBody(body, writer.FormDataContentType()).
 		Send(&response)
 
@@ -283,7 +284,7 @@ func (c *Client) PinFileToIPFS(path string, options *PinOptions) (*PinResponse, 
 //
 // This function returns a PinResponse containing the IPFS hash and other details
 // of the pinned data, or an error if the operation fails.
-func (c *Client) PinJSONToIPFS(data interface{}, options *PinOptions) (*PinResponse, error) {
+func (c *client) PinJSONToIPFS(data interface{}, options *PinOptions) (*pinResponse, error) {
 	if data == nil {
 		return nil, fmt.Errorf("ERR: jsonData is required")
 	}
@@ -295,12 +296,12 @@ func (c *Client) PinJSONToIPFS(data interface{}, options *PinOptions) (*PinRespo
 		payload["pinataMetadata"] = options.PinataMetadata
 	}
 
-	req, err := c.NewRequest("POST", "/pinning/pinJSONToIPFS").SetJSONBody(payload)
+	req, err := c.NewRequest(http.MethodPost, "/pinning/pinJSONToIPFS").SetJSONBody(payload)
 	if err != nil {
 		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
 	}
 
-	var response PinResponse
+	var response pinResponse
 	err = req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -312,7 +313,7 @@ func (c *Client) PinJSONToIPFS(data interface{}, options *PinOptions) (*PinRespo
 // PinByCid pins the content identified by the provided hashToPin to IPFS using the Pinata API.
 // The optional PinByCidOptions can be used to provide additional metadata and options for the pin operation.
 // Returns a PinByCidResponse containing information about the pinned content.
-func (c *Client) PinByCid(hashToPin string, options *PinByCidOptions) (*PinByCidResponse, error) {
+func (c *client) PinByCid(hashToPin string, options *PinByCidOptions) (*pinByCidResponse, error) {
 	if hashToPin == "" {
 		return nil, fmt.Errorf("ERR: hashToPin is required")
 	}
@@ -324,12 +325,12 @@ func (c *Client) PinByCid(hashToPin string, options *PinByCidOptions) (*PinByCid
 		payload["pinataMetadata"] = options.PinataMetadata
 	}
 
-	req, err := c.NewRequest("POST", "/pinning/pinByHash").SetJSONBody(payload)
+	req, err := c.NewRequest(http.MethodPost, "/pinning/pinByHash").SetJSONBody(payload)
 	if err != nil {
 		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
 	}
 
-	var response PinByCidResponse
+	var response pinByCidResponse
 	err = req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -340,13 +341,13 @@ func (c *Client) PinByCid(hashToPin string, options *PinByCidOptions) (*PinByCid
 
 // ListFiles returns a list of files that have been pinned to Pinata.
 // The options parameter can be used to filter the list of files.
-func (c *Client) ListFiles(options *ListFilesOptions) (*ListFilesResponse, error) {
-	req := c.NewRequest("GET", "/data/pinList")
+func (c *client) ListFiles(options *ListFilesOptions) (*listFilesResponse, error) {
+	req := c.NewRequest(http.MethodGet, "/data/pinList")
 	if options != nil {
 		req.setListPinsQueryParams(options)
 	}
 
-	var response ListFilesResponse
+	var response listFilesResponse
 	err := req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -357,14 +358,14 @@ func (c *Client) ListFiles(options *ListFilesOptions) (*ListFilesResponse, error
 
 // ListPinByCidJobs returns a list of pin jobs for the provided ListPinByCidOptions.
 // The ListPinByCidOptions can be used to filter the list of pin jobs.
-// Returns a ListPinByCidResponse containing information about the pin jobs.
-func (c *Client) ListPinByCidJobs(options *ListPinByCidOptions) (*ListPinByCidResponse, error) {
-	req := c.NewRequest("GET", "/pinning/pinJobs")
+// Returns a listPinByCidResponse containing information about the pin jobs.
+func (c *client) ListPinByCidJobs(options *ListPinByCidOptions) (*listPinByCidResponse, error) {
+	req := c.NewRequest(http.MethodGet, "/pinning/pinJobs")
 	if options != nil {
 		req.setListPinsByCidQueryParams(options)
 	}
 
-	var response ListPinByCidResponse
+	var response listPinByCidResponse
 	err := req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -377,17 +378,17 @@ func (c *Client) ListPinByCidJobs(options *ListPinByCidOptions) (*ListPinByCidRe
 // The fileHash parameter specifies the hash of the file to update.
 // The options parameter specifies the new metadata to apply, including the name and key-value pairs.
 // Returns an error if the fileHash or options are not provided, or if there is an error updating the metadata.
-func (c *Client) UpdateFileMetadata(fileHash string, options *PinMetadataUpdateOptions) error {
+func (c *client) UpdateFileMetadata(fileHash string, options *PinMetadataUpdateOptions) error {
 	if fileHash == "" || options == nil {
 		return fmt.Errorf("ERR: fileHash and options are required")
 	}
 
 	payload := make(map[string]interface{})
-	payload["ipfsPinHash"] = fileHash // "ipfsPinHash" wasn't shown as a query in the docs site. Inform pinata team
+	payload["ipfsPinHash"] = fileHash // "ipfsPinHash" wasn't shown as a query param in the docs. Inform the pinata team
 	payload["name"] = options.Name
 	payload["keyvalues"] = options.KeyValues
 
-	req, err := c.NewRequest("PUT", "/pinning/hashMetadata").SetJSONBody(payload)
+	req, err := c.NewRequest(http.MethodPut, "/pinning/hashMetadata").SetJSONBody(payload)
 	if err != nil {
 		return fmt.Errorf("ERR: failed to set JSON body: %w", err)
 	}
@@ -402,12 +403,12 @@ func (c *Client) UpdateFileMetadata(fileHash string, options *PinMetadataUpdateO
 // DeleteFile deletes the file with the given CID (content identifier) from the Pinata service.
 // If the cid parameter is an empty string, an error is returned.
 // Returns an error if the file could not be deleted.
-func (c *Client) DeleteFile(cid string) error {
+func (c *client) DeleteFile(cid string) error {
 	if cid == "" {
 		return fmt.Errorf("cid is required")
 	}
 
-	err := c.NewRequest("DELETE", "/pinning/unpin/{cid}").
+	err := c.NewRequest(http.MethodDelete, "/pinning/unpin/{cid}").
 		AddPathParam("cid", cid).
 		Send(nil)
 

@@ -2,18 +2,19 @@ package pinata
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 )
 
-// ApiKeyResponse represents the response from an API key related request.
+// apiKeyResponse represents the response from an API key related request.
 // It contains a slice of ApiKey structs and a count of the total number of keys.
-type ApiKeyResponse struct {
-	Keys  []ApiKey `json:"keys,omitempty"`
+type apiKeyResponse struct {
+	Keys  []apiKey `json:"keys,omitempty"`
 	Count int      `json:"count,omitempty"`
 }
 
-// ApiKey represents an API key for the Pinata service.
-type ApiKey struct {
+// apiKey represents an API key for the Pinata service.
+type apiKey struct {
 	ID        string    `json:"id,omitempty"`
 	Name      string    `json:"name,omitempty"`
 	Key       string    `json:"key,omitempty"`
@@ -21,35 +22,35 @@ type ApiKey struct {
 	MaxUses   int       `json:"max_uses,omitempty"`
 	Uses      int       `json:"uses,omitempty"`
 	UserID    string    `json:"user_id,omitempty"`
-	Scopes    Scope     `json:"scopes,omitempty"`
+	Scopes    scope     `json:"scopes,omitempty"`
 	Revoked   bool      `json:"revoked,omitempty"`
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-// Scope represents the permissions and access scopes for an API key.
+// scope represents the permissions and access scopes for an API key.
 // The Endpoints field contains the specific permissions for different API endpoints,
 // while the Admin field indicates if the API key has full administrative access.
-type Scope struct {
+type scope struct {
 	Endpoints struct {
-		Data    ScopeData    `json:"data"`
-		Pinning ScopePinning `json:"pinning"`
-		Psa     ScopePsa     `json:"psa"`
+		Data    scopeData    `json:"data"`
+		Pinning scopePinning `json:"pinning"`
+		Psa     scopePsa     `json:"psa"`
 	} `json:"endpoints"`
 	Admin bool `json:"admin,omitempty"`
 }
 
-// ScopeData represents the data-related permissions for an API key.
+// scopeData represents the data-related permissions for an API key.
 // The PinList field indicates if the API key can list the user's pinned data.
 // The UserPinnedDataTotal field indicates if the API key can retrieve the total amount of the user's pinned data.
-type ScopeData struct {
+type scopeData struct {
 	PinList             bool `json:"pinList"`
 	UserPinnedDataTotal bool `json:"userPinnedDataTotal"`
 }
 
-// ScopePsa represents the permissions and access scopes for the PSA (Pinata Secure API) endpoints.
+// scopePsa represents the permissions and access scopes for the PSA (Pinata Secure API) endpoints.
 // The Pins field contains the specific permissions for different PSA pin-related operations.
-type ScopePsa struct {
+type scopePsa struct {
 	Pins struct {
 		AddPinObject     bool `json:"addPinObject"`
 		GetPinObject     bool `json:"getPinObject"`
@@ -59,7 +60,7 @@ type ScopePsa struct {
 	} `json:"pins"`
 }
 
-// ScopePinning represents the permissions and access scopes for the Pinning API endpoints.
+// scopePinning represents the permissions and access scopes for the Pinning API endpoints.
 // The HashMetadata field indicates if the API key can hash metadata.
 // The HashPinPolicy field indicates if the API key can hash pin policies.
 // The PinByHash field indicates if the API key can pin data by hash.
@@ -68,7 +69,7 @@ type ScopePsa struct {
 // The PinJobs field indicates if the API key can manage pin jobs.
 // The Unpin field indicates if the API key can unpin data.
 // The UserPinPolicy field indicates if the API key can manage user pin policies.
-type ScopePinning struct {
+type scopePinning struct {
 	HashMetadata  bool `json:"hashMetadata"`
 	HashPinPolicy bool `json:"hashPinPolicy"`
 	PinByHash     bool `json:"pinByHash"`
@@ -89,11 +90,11 @@ type GenerateApiKeyOptions struct {
 	MaxUses     int         `json:"maxUses,omitempty"`
 }
 
-// PinataSecret represents the secret information returned when generating a new API key.
+// secret represents the secret information returned when generating a new API key.
 // The JWT field contains the JSON Web Token for the generated API key.
 // The PinataApiKey field contains the API key itself.
 // The PinataApiSecret field contains the API secret for the generated API key.
-type PinataSecret struct {
+type secret struct {
 	JWT             string `json:"JWT,omitempty"`
 	PinataApiKey    string `json:"pinata_api_key,omitempty"`
 	PinataApiSecret string `json:"pinata_api_secret,omitempty"`
@@ -162,21 +163,21 @@ type ListApiKeysOptions struct {
 // The provided GenerateApiKeyOptions struct specifies the options for the new API key, such as the name, permissions, and expiration.
 // If the options are nil, an error will be returned.
 //
-// The function returns a PinataSecret struct containing the new API key and secret.
+// The function returns a Secret struct containing the new API key and secret.
 // If there is an error generating the API key, an error will be returned.
-func (c *Client) GenerateApiKey(options *GenerateApiKeyOptions) (*PinataSecret, error) {
+func (c *client) GenerateApiKey(options *GenerateApiKeyOptions) (*secret, error) {
 	if options == nil {
 		return nil, fmt.Errorf("options cannot be nil")
 	}
 
-	req, err := c.NewRequest("POST", "/users/generateApiKey").
+	req, err := c.NewRequest(http.MethodPost, "/users/generateApiKey").
 		SetJSONBody(options)
 
 	if err != nil {
 		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
 	}
 
-	var response PinataSecret
+	var response secret
 	err = req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -190,21 +191,21 @@ func (c *Client) GenerateApiKey(options *GenerateApiKeyOptions) (*PinataSecret, 
 // The provided GenerateApiKeyOptions struct specifies the options for the new API key, such as the name, permissions, and expiration.
 // If the options are nil, an error will be returned.
 //
-// The function returns a PinataSecret struct containing the new API key and secret.
+// The function returns a Secret struct containing the new API key and secret.
 // If there is an error generating the API key, an error will be returned.
-func (c *Client) GenerateApiKeyV3(options *GenerateApiKeyOptions) (*PinataSecret, error) {
+func (c *client) GenerateApiKeyV3(options *GenerateApiKeyOptions) (*secret, error) {
 	if options == nil {
 		return nil, fmt.Errorf("options cannot be nil")
 	}
 
-	req, err := c.NewRequest("POST", "/v3/pinata/keys").
+	req, err := c.NewRequest(http.MethodPost, "/v3/pinata/keys").
 		SetJSONBody(options)
 
 	if err != nil {
 		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
 	}
 
-	var response PinataSecret
+	var response secret
 	err = req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -216,9 +217,9 @@ func (c *Client) GenerateApiKeyV3(options *GenerateApiKeyOptions) (*PinataSecret
 // ListApiKeys returns a list of API keys associated with the current user.
 // The response includes information about each API key, such as whether it is revoked, limited use, or exhausted.
 // The options parameter can be used to filter the results by various criteria.
-func (c *Client) ListApiKeys() (*ApiKeyResponse, error) {
-	var response ApiKeyResponse
-	err := c.NewRequest("GET", "/users/apiKeys").
+func (c *client) ListApiKeys() (*apiKeyResponse, error) {
+	var response apiKeyResponse
+	err := c.NewRequest(http.MethodGet, "/users/apiKeys").
 		Send(&response)
 
 	if err != nil {
@@ -230,13 +231,13 @@ func (c *Client) ListApiKeys() (*ApiKeyResponse, error) {
 // ListApiKeyV3 returns a list of API keys associated with the current user.
 // The response includes information about each API key, such as whether it is revoked, limited use, or exhausted.
 // The options parameter can be used to filter the results by various criteria.
-func (c *Client) ListApiKeyV3(options *ListApiKeysOptions) (*ApiKeyResponse, error) {
-	req := c.NewRequest("GET", "/v3/pinata/keys")
+func (c *client) ListApiKeyV3(options *ListApiKeysOptions) (*apiKeyResponse, error) {
+	req := c.NewRequest(http.MethodGet, "/v3/pinata/keys")
 	if options != nil {
 		req.setListApiKeysQueryParams(options)
 	}
 
-	var response ApiKeyResponse
+	var response apiKeyResponse
 	err := req.Send(&response)
 	if err != nil {
 		return nil, err
@@ -247,7 +248,7 @@ func (c *Client) ListApiKeyV3(options *ListApiKeysOptions) (*ApiKeyResponse, err
 
 // RevokeApiKey revokes the specified API key.
 // If the apiKey parameter is empty, an error is returned.
-func (c *Client) RevokeApiKey(apiKey string) error {
+func (c *client) RevokeApiKey(apiKey string) error {
 	if apiKey == "" {
 		return fmt.Errorf("api key is required")
 	}
@@ -255,7 +256,7 @@ func (c *Client) RevokeApiKey(apiKey string) error {
 	payload := make(map[string]string)
 	payload["apiKey"] = apiKey
 
-	req, err := c.NewRequest("PUT", "/users/revokeApiKey").
+	req, err := c.NewRequest(http.MethodPut, "/users/revokeApiKey").
 		SetJSONBody(payload)
 	if err != nil {
 		return fmt.Errorf("ERR: failed to set JSON body: %w", err)
@@ -271,12 +272,12 @@ func (c *Client) RevokeApiKey(apiKey string) error {
 // RevokeApiKeyV3 revokes the specified API key.
 // The key parameter is required and must be a valid API key.
 // If the key is successfully revoked, this method returns nil. Otherwise, it returns an error.
-func (c *Client) RevokeApiKeyV3(key string) error {
+func (c *client) RevokeApiKeyV3(key string) error {
 	if key == "" {
 		return fmt.Errorf("key is required")
 	}
 
-	err := c.NewRequest("PUT", "/v3/pinata/keys/{key}").
+	err := c.NewRequest(http.MethodPut, "/v3/pinata/keys/{key}").
 		AddPathParam("key", key).
 		Send(nil)
 

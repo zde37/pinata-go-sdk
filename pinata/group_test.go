@@ -15,7 +15,7 @@ func TestCreateGroup(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups", r.URL.Path)
-			require.Equal(t, "POST", r.Method)
+			require.Equal(t, http.MethodPost, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -90,7 +90,7 @@ func TestGetGroup(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 
 			w.WriteHeader(http.StatusOK)
@@ -176,7 +176,7 @@ func TestListGroups(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 
 			w.WriteHeader(http.StatusOK)
@@ -201,7 +201,7 @@ func TestListGroups(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "10", r.URL.Query().Get("limit"))
 			require.Equal(t, "5", r.URL.Query().Get("offset"))
@@ -283,7 +283,7 @@ func TestUpdateGroup(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123", r.URL.Path)
-			require.Equal(t, "PUT", r.Method)
+			require.Equal(t, http.MethodPut, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -386,7 +386,7 @@ func TestAddCidToGroup(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123/cids", r.URL.Path)
-			require.Equal(t, "PUT", r.Method)
+			require.Equal(t, http.MethodPut, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -448,7 +448,7 @@ func TestRemoveCidFromGroup(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123/cids", r.URL.Path)
-			require.Equal(t, "DELETE", r.Method)
+			require.Equal(t, http.MethodDelete, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -508,7 +508,7 @@ func TestRemoveCidFromGroup(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123/cids", r.URL.Path)
-			require.Equal(t, "DELETE", r.Method)
+			require.Equal(t, http.MethodDelete, r.Method)
 
 			var payload map[string][]string
 			err := json.NewDecoder(r.Body).Decode(&payload)
@@ -532,7 +532,7 @@ func TestRemoveGroup(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123", r.URL.Path)
-			require.Equal(t, "DELETE", r.Method)
+			require.Equal(t, http.MethodDelete, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			w.WriteHeader(http.StatusOK)
 		}))

@@ -1,6 +1,6 @@
 # Pinata Go SDK (Unofficial)
 
-**Disclaimer:** This is not the official Pinata Go SDK. This is a community version built by a user interested in Pinata's services(Me).
+**Disclaimer:** This is not the official Pinata Go SDK...yet :). This is a community version built by a user interested in Pinata's services.
 
 The Pinata Go SDK is a comprehensive Go library for interacting with the Pinata API, a popular service for pinning content to IPFS (InterPlanetary File System). This SDK provides an easy-to-use interface for developers to integrate Pinata's functionality into their Go applications.
 
@@ -61,9 +61,23 @@ if err != nil {
 fmt.Printf("File pinned successfully. IPFS hash: %s\n", response.IpfsHash)
 ```
 
+## Custom Usage
+You can also create custom requests to interact with the Pinata API for functions that are not included in the SDK.
+
+```go
+var response pinata.PinataGroup
+err := client.NewRequest(http.MethodGet, "/groups/{id}").
+	AddPathParam("id", "ENTER_GROUP_ID").
+	Send(&response)
+
+if err != nil {
+    // handle error
+}
+fmt.Printf("%+v", response)
+```
 ## Run Tests
 ```
-go test -v -cover ./... 
+make test
 ```
 
 ## License
@@ -84,10 +98,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 We're always looking to improve and expand the SDK. Here are some features we're considering for future releases:
 
-- Implementation of gateway functionality
-- Adding comprehensive test suite
-- Support for additional Pinata API endpoints as they become available
-- Improved error handling and logging
+- Implementation of gateway functionality 
+- Support for additional Pinata API endpoints as they become available 
 - Performance optimizations
 
 If you have any suggestions for future features, please open an issue or contribute to the project!

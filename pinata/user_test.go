@@ -15,7 +15,7 @@ func TestGenerateApiKey(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/users/generateApiKey", r.URL.Path)
-			require.Equal(t, "POST", r.Method)
+			require.Equal(t, http.MethodPost, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -93,7 +93,7 @@ func TestGenerateApiKeyV3(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys", r.URL.Path)
-			require.Equal(t, "POST", r.Method)
+			require.Equal(t, http.MethodPost, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -171,7 +171,7 @@ func TestListApiKeys(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/users/apiKeys", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 
 			w.WriteHeader(http.StatusOK)
@@ -264,7 +264,7 @@ func TestListApiKeyV3(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "20", r.URL.Query().Get("offset"))
 
@@ -292,7 +292,7 @@ func TestListApiKeyV3(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys", r.URL.Path)
-			require.Equal(t, "GET", r.Method)
+			require.Equal(t, http.MethodGet, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Empty(t, r.URL.Query().Get("offset"))
 
@@ -370,7 +370,7 @@ func TestRevokeApiKey(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/users/revokeApiKey", r.URL.Path)
-			require.Equal(t, "PUT", r.Method)
+			require.Equal(t, http.MethodPut, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			require.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
@@ -449,7 +449,7 @@ func TestRevokeApiKeyV3(t *testing.T) {
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys/test_api_key", r.URL.Path)
-			require.Equal(t, "PUT", r.Method)
+			require.Equal(t, http.MethodPut, r.Method)
 			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
 			w.WriteHeader(http.StatusOK)
 		}))
