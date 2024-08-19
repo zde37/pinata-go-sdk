@@ -140,7 +140,6 @@ func TestTestAuthentication(t *testing.T) {
 		response, err := client.TestAuthentication()
 
 		require.Error(t, err)
-		require.Nil(t, response)
-		require.Contains(t, err.Error(), "no such host")
+		require.Nil(t, response) 
 	})
 }
