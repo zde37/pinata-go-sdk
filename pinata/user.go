@@ -165,7 +165,7 @@ type ListApiKeysOptions struct {
 //
 // The function returns a Secret struct containing the new API key and secret.
 // If there is an error generating the API key, an error will be returned.
-func (c *client) GenerateApiKey(options *GenerateApiKeyOptions) (*secret, error) {
+func (c *Client) GenerateApiKey(options *GenerateApiKeyOptions) (*secret, error) {
 	if options == nil {
 		return nil, fmt.Errorf("options cannot be nil")
 	}
@@ -193,7 +193,7 @@ func (c *client) GenerateApiKey(options *GenerateApiKeyOptions) (*secret, error)
 //
 // The function returns a Secret struct containing the new API key and secret.
 // If there is an error generating the API key, an error will be returned.
-func (c *client) GenerateApiKeyV3(options *GenerateApiKeyOptions) (*secret, error) {
+func (c *Client) GenerateApiKeyV3(options *GenerateApiKeyOptions) (*secret, error) {
 	if options == nil {
 		return nil, fmt.Errorf("options cannot be nil")
 	}
@@ -217,7 +217,7 @@ func (c *client) GenerateApiKeyV3(options *GenerateApiKeyOptions) (*secret, erro
 // ListApiKeys returns a list of API keys associated with the current user.
 // The response includes information about each API key, such as whether it is revoked, limited use, or exhausted.
 // The options parameter can be used to filter the results by various criteria.
-func (c *client) ListApiKeys() (*apiKeyResponse, error) {
+func (c *Client) ListApiKeys() (*apiKeyResponse, error) {
 	var response apiKeyResponse
 	err := c.NewRequest(http.MethodGet, "/users/apiKeys").
 		Send(&response)
@@ -231,7 +231,7 @@ func (c *client) ListApiKeys() (*apiKeyResponse, error) {
 // ListApiKeyV3 returns a list of API keys associated with the current user.
 // The response includes information about each API key, such as whether it is revoked, limited use, or exhausted.
 // The options parameter can be used to filter the results by various criteria.
-func (c *client) ListApiKeyV3(options *ListApiKeysOptions) (*apiKeyResponse, error) {
+func (c *Client) ListApiKeyV3(options *ListApiKeysOptions) (*apiKeyResponse, error) {
 	req := c.NewRequest(http.MethodGet, "/v3/pinata/keys")
 	if options != nil {
 		req.setListApiKeysQueryParams(options)
@@ -248,7 +248,7 @@ func (c *client) ListApiKeyV3(options *ListApiKeysOptions) (*apiKeyResponse, err
 
 // RevokeApiKey revokes the specified API key.
 // If the apiKey parameter is empty, an error is returned.
-func (c *client) RevokeApiKey(apiKey string) error {
+func (c *Client) RevokeApiKey(apiKey string) error {
 	if apiKey == "" {
 		return fmt.Errorf("api key is required")
 	}
@@ -272,7 +272,7 @@ func (c *client) RevokeApiKey(apiKey string) error {
 // RevokeApiKeyV3 revokes the specified API key.
 // The key parameter is required and must be a valid API key.
 // If the key is successfully revoked, this method returns nil. Otherwise, it returns an error.
-func (c *client) RevokeApiKeyV3(key string) error {
+func (c *Client) RevokeApiKeyV3(key string) error {
 	if key == "" {
 		return fmt.Errorf("key is required")
 	}

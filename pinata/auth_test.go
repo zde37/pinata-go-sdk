@@ -11,33 +11,33 @@ func TestNewAuth(t *testing.T) {
 	t.Run("with all fields provided", func(t *testing.T) {
 		auth := NewAuth("test_api_key", "test_api_secret", "test_jwt_token")
 		require.NotNil(t, auth)
-		require.Equal(t, "test_api_key", auth.APIKey)
-		require.Equal(t, "test_api_secret", auth.APISecret)
-		require.Equal(t, "test_jwt_token", auth.JWT)
+		require.Equal(t, "test_api_key", auth.apiKey)
+		require.Equal(t, "test_api_secret", auth.apiSecret)
+		require.Equal(t, "test_jwt_token", auth.jwt)
 	})
 
 	t.Run("with only API key and secret", func(t *testing.T) {
 		auth := NewAuth("test_api_key", "test_api_secret", "")
 		require.NotNil(t, auth)
-		require.Equal(t, "test_api_key", auth.APIKey)
-		require.Equal(t, "test_api_secret", auth.APISecret)
-		require.Empty(t, auth.JWT)
+		require.Equal(t, "test_api_key", auth.apiKey)
+		require.Equal(t, "test_api_secret", auth.apiSecret)
+		require.Empty(t, auth.jwt)
 	})
 
 	t.Run("with only JWT", func(t *testing.T) {
 		auth := NewAuth("", "", "test_jwt_token")
 		require.NotNil(t, auth)
-		require.Empty(t, auth.APIKey)
-		require.Empty(t, auth.APISecret)
-		require.Equal(t, "test_jwt_token", auth.JWT)
+		require.Empty(t, auth.apiKey)
+		require.Empty(t, auth.apiSecret)
+		require.Equal(t, "test_jwt_token", auth.jwt)
 	})
 
 	t.Run("with empty fields", func(t *testing.T) {
 		auth := NewAuth("", "", "")
 		require.NotNil(t, auth)
-		require.Empty(t, auth.APIKey)
-		require.Empty(t, auth.APISecret)
-		require.Empty(t, auth.JWT)
+		require.Empty(t, auth.apiKey)
+		require.Empty(t, auth.apiSecret)
+		require.Empty(t, auth.jwt)
 	})
 }
 
@@ -46,25 +46,25 @@ func TestNewAuthWithJWT(t *testing.T) {
 		jwt := "valid_jwt_token"
 		auth := NewAuthWithJWT(jwt)
 		require.NotNil(t, auth)
-		require.Equal(t, jwt, auth.JWT)
-		require.Empty(t, auth.APIKey)
-		require.Empty(t, auth.APISecret)
+		require.Equal(t, jwt, auth.jwt)
+		require.Empty(t, auth.apiKey)
+		require.Empty(t, auth.apiSecret)
 	})
 
 	t.Run("with empty JWT", func(t *testing.T) {
 		auth := NewAuthWithJWT("")
 		require.NotNil(t, auth)
-		require.Empty(t, auth.JWT)
-		require.Empty(t, auth.APIKey)
-		require.Empty(t, auth.APISecret)
+		require.Empty(t, auth.jwt)
+		require.Empty(t, auth.apiKey)
+		require.Empty(t, auth.apiSecret)
 	})
 
 	t.Run("with whitespace JWT", func(t *testing.T) {
 		auth := NewAuthWithJWT("   ")
 		require.NotNil(t, auth)
-		require.Equal(t, "   ", auth.JWT)
-		require.Empty(t, auth.APIKey)
-		require.Empty(t, auth.APISecret)
+		require.Equal(t, "   ", auth.jwt)
+		require.Empty(t, auth.apiKey)
+		require.Empty(t, auth.apiSecret)
 	})
 
 	t.Run("setAuthHeader with JWT from NewAuthWithJWT", func(t *testing.T) {
@@ -83,8 +83,8 @@ func TestNewAuthWithJWT(t *testing.T) {
 
 func TestSetAuthHeader(t *testing.T) {
 	t.Run("with JWT", func(t *testing.T) {
-		auth := &Auth{
-			JWT: "test_jwt_token",
+		auth := &auth{
+			jwt: "test_jwt_token",
 		}
 		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
@@ -97,9 +97,9 @@ func TestSetAuthHeader(t *testing.T) {
 	})
 
 	t.Run("with API key and secret", func(t *testing.T) {
-		auth := &Auth{
-			APIKey:    "test_api_key",
-			APISecret: "test_api_secret",
+		auth := &auth{
+			apiKey:    "test_api_key",
+			apiSecret: "test_api_secret",
 		}
 		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
@@ -111,7 +111,7 @@ func TestSetAuthHeader(t *testing.T) {
 	})
 
 	t.Run("with empty auth", func(t *testing.T) {
-		auth := &Auth{}
+		auth := &auth{}
 		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
 		auth.setAuthHeader(req)
@@ -122,10 +122,10 @@ func TestSetAuthHeader(t *testing.T) {
 	})
 
 	t.Run("JWT takes precedence over API key and secret", func(t *testing.T) {
-		auth := &Auth{
-			JWT:       "test_jwt_token",
-			APIKey:    "test_api_key",
-			APISecret: "test_api_secret",
+		auth := &auth{
+			jwt:       "test_jwt_token",
+			apiKey:    "test_api_key",
+			apiSecret: "test_api_secret",
 		}
 		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 

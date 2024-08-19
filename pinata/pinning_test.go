@@ -13,7 +13,7 @@ import (
 
 func TestPinFileToIPFS(t *testing.T) {
 	t.Run("successful file pinning", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		tempFile, err := os.CreateTemp("", "test_file_*.txt")
 		require.NoError(t, err)
@@ -44,7 +44,7 @@ func TestPinFileToIPFS(t *testing.T) {
 			w.Write([]byte(`{"IpfsHash":"Qm123456","PinSize":123,"Timestamp":"2023-05-01T12:00:00Z"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.PinFileToIPFS(tempFile.Name(), nil)
 
@@ -56,7 +56,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("empty file path", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinFileToIPFS("", nil)
@@ -67,7 +67,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("non-existent file", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinFileToIPFS("/path/to/non/existent/file.txt", nil)
@@ -78,7 +78,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("with pin options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		tempFile, err := os.CreateTemp("", "test_file_*.txt")
 		require.NoError(t, err)
@@ -104,7 +104,7 @@ func TestPinFileToIPFS(t *testing.T) {
 			w.Write([]byte(`{"IpfsHash":"Qm789012","PinSize":456,"Timestamp":"2023-05-02T12:00:00Z"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		options := &PinOptions{
 			PinataMetadata: PinataMetadata{
@@ -121,7 +121,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		tempFile, err := os.CreateTemp("", "test_file_*.txt")
 		require.NoError(t, err)
@@ -136,7 +136,7 @@ func TestPinFileToIPFS(t *testing.T) {
 			w.Write([]byte(`{"error":"Internal server error"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.PinFileToIPFS(tempFile.Name(), nil)
 
@@ -148,7 +148,7 @@ func TestPinFileToIPFS(t *testing.T) {
 
 func TestPinJSONToIPFS(t *testing.T) {
 	t.Run("successful JSON pinning", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -166,7 +166,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 			w.Write([]byte(`{"IpfsHash":"Qm987654","PinSize":789,"Timestamp":"2023-05-03T12:00:00Z"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		data := map[string]string{"key": "value"}
 		response, err := client.PinJSONToIPFS(data, nil)
@@ -179,7 +179,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 	})
 
 	t.Run("nil data", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinJSONToIPFS(nil, nil)
@@ -190,7 +190,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 	})
 
 	t.Run("with pin options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -213,7 +213,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 			w.Write([]byte(`{"IpfsHash":"Qm135790","PinSize":246,"Timestamp":"2023-05-04T12:00:00Z"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		data := map[string]int{"number": 42}
 		options := &PinOptions{
@@ -236,7 +236,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -244,7 +244,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 			w.Write([]byte(`{"error":"Internal server error"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		data := map[string]bool{"flag": true}
 		response, err := client.PinJSONToIPFS(data, nil)
@@ -257,7 +257,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 
 func TestPinByCid(t *testing.T) {
 	t.Run("successful pin by CID", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -275,7 +275,7 @@ func TestPinByCid(t *testing.T) {
 			w.Write([]byte(`{"id":"test_id","ipfsHash":"QmTestHash123","status":"pinned"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.PinByCid("QmTestHash123", nil)
 
@@ -287,7 +287,7 @@ func TestPinByCid(t *testing.T) {
 	})
 
 	t.Run("empty hash to pin", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinByCid("", nil)
@@ -298,7 +298,7 @@ func TestPinByCid(t *testing.T) {
 	})
 
 	t.Run("with pin options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -320,7 +320,7 @@ func TestPinByCid(t *testing.T) {
 			w.Write([]byte(`{"id":"test_id_2","ipfsHash":"QmTestHash456","status":"pinned","created":"2023-05-06T12:00:00Z"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		options := &PinByCidOptions{
 			PinataOptions: struct {
@@ -344,7 +344,7 @@ func TestPinByCid(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -352,7 +352,7 @@ func TestPinByCid(t *testing.T) {
 			w.Write([]byte(`{"error":"Internal server error"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.PinByCid("QmTestHash789", nil)
 
@@ -364,7 +364,7 @@ func TestPinByCid(t *testing.T) {
 
 func TestListFiles(t *testing.T) {
 	t.Run("successful list files without options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -376,7 +376,7 @@ func TestListFiles(t *testing.T) {
 			w.Write([]byte(`{"count":2,"rows":[{"id":"file1","ipfs_pin_hash":"Qm123","size":100,"user_id":"user1","date_pinned":"2023-05-07T12:00:00Z"},{"id":"file2","ipfs_pin_hash":"Qm456","size":200,"user_id":"user1","date_pinned":"2023-05-08T12:00:00Z"}]}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.ListFiles(nil)
 
@@ -392,7 +392,7 @@ func TestListFiles(t *testing.T) {
 	})
 
 	t.Run("list files with options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -409,7 +409,7 @@ func TestListFiles(t *testing.T) {
 			w.Write([]byte(`{"count":1,"rows":[{"id":"file3","ipfs_pin_hash":"Qm789","size":300,"user_id":"user1","date_pinned":"2023-05-09T12:00:00Z"}]}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		options := &ListFilesOptions{
 			PageLimit:  10,
@@ -432,7 +432,7 @@ func TestListFiles(t *testing.T) {
 	})
 
 	t.Run("empty response", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -440,7 +440,7 @@ func TestListFiles(t *testing.T) {
 			w.Write([]byte(`{"count":0,"rows":[]}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.ListFiles(nil)
 
@@ -451,7 +451,7 @@ func TestListFiles(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -459,7 +459,7 @@ func TestListFiles(t *testing.T) {
 			w.Write([]byte(`{"error":"Internal server error"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.ListFiles(nil)
 
@@ -471,7 +471,7 @@ func TestListFiles(t *testing.T) {
 
 func TestListPinByCidJobs(t *testing.T) {
 	t.Run("successful list pin by CID jobs without options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -483,7 +483,7 @@ func TestListPinByCidJobs(t *testing.T) {
 			w.Write([]byte(`{"count":2,"rows":[{"id":"job1","ipfs_pin_hash":"Qm123","status":"retrieving","date_queued":"2023-05-10T12:00:00Z"},{"id":"job2","ipfs_pin_hash":"Qm456","status":"retrieving","date_queued":"2023-05-11T12:00:00Z"}]}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.ListPinByCidJobs(nil)
 
@@ -498,7 +498,7 @@ func TestListPinByCidJobs(t *testing.T) {
 	})
 
 	t.Run("list pin by CID jobs with options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -515,7 +515,7 @@ func TestListPinByCidJobs(t *testing.T) {
 			w.Write([]byte(`{"count":1,"rows":[{"id":"job3","ipfs_pin_hash":"Qm789","status":"retrieving","date_queued":"2023-05-12T12:00:00Z"}]}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		options := &ListPinByCidOptions{
 			Limit:  5,
@@ -535,7 +535,7 @@ func TestListPinByCidJobs(t *testing.T) {
 	})
 
 	t.Run("empty response", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -543,7 +543,7 @@ func TestListPinByCidJobs(t *testing.T) {
 			w.Write([]byte(`{"count":0,"rows":[]}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.ListPinByCidJobs(nil)
 
@@ -554,7 +554,7 @@ func TestListPinByCidJobs(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -562,7 +562,7 @@ func TestListPinByCidJobs(t *testing.T) {
 			w.Write([]byte(`{"error":"Internal server error"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		response, err := client.ListPinByCidJobs(nil)
 
@@ -574,7 +574,7 @@ func TestListPinByCidJobs(t *testing.T) {
 
 func TestUpdateFileMetadata(t *testing.T) {
 	t.Run("successful update", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -593,7 +593,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		options := &PinMetadataUpdateOptions{
 			Name: "Updated File",
@@ -608,7 +608,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 	})
 
 	t.Run("empty file hash", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		options := &PinMetadataUpdateOptions{
@@ -621,7 +621,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 	})
 
 	t.Run("nil options", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.UpdateFileMetadata("QmTestHash123", nil)
@@ -631,7 +631,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -639,7 +639,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 			w.Write([]byte(`{"error":"Internal server error"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		options := &PinMetadataUpdateOptions{
 			Name: "Updated File",
@@ -653,7 +653,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 
 func TestDeleteFile(t *testing.T) {
 	t.Run("successful delete", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -664,7 +664,7 @@ func TestDeleteFile(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		err := client.DeleteFile("QmTestCID123")
 
@@ -672,7 +672,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("empty CID", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.DeleteFile("")
@@ -682,7 +682,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -690,7 +690,7 @@ func TestDeleteFile(t *testing.T) {
 			w.Write([]byte(`{"error":"Internal server error"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		err := client.DeleteFile("QmTestCID456")
 
@@ -699,7 +699,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("not found error", func(t *testing.T) {
-		auth := &Auth{JWT: "valid_jwt_token"}
+		auth := &auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -707,7 +707,7 @@ func TestDeleteFile(t *testing.T) {
 			w.Write([]byte(`{"error":"File not found"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		err := client.DeleteFile("QmNonExistentCID")
 
@@ -716,7 +716,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("unauthorized error", func(t *testing.T) {
-		auth := &Auth{JWT: "invalid_jwt_token"}
+		auth := &auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -724,7 +724,7 @@ func TestDeleteFile(t *testing.T) {
 			w.Write([]byte(`{"error":"Unauthorized"}`))
 		}))
 		defer mockServer.Close()
-		client.BaseURL = mockServer.URL
+		client.baseURL = mockServer.URL
 
 		err := client.DeleteFile("QmTestCID789")
 

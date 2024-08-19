@@ -225,7 +225,7 @@ type pinPolicy struct {
 //
 // Returns a PinResponse struct containing the IPFS hash and other details of the
 // pinned file, or an error if the operation fails.
-func (c *client) PinFileToIPFS(path string, options *PinOptions) (*pinResponse, error) {
+func (c *Client) PinFileToIPFS(path string, options *PinOptions) (*pinResponse, error) {
 	if path == "" {
 		return nil, fmt.Errorf("ERR: filepath is required")
 	}
@@ -284,7 +284,7 @@ func (c *client) PinFileToIPFS(path string, options *PinOptions) (*pinResponse, 
 //
 // This function returns a PinResponse containing the IPFS hash and other details
 // of the pinned data, or an error if the operation fails.
-func (c *client) PinJSONToIPFS(data interface{}, options *PinOptions) (*pinResponse, error) {
+func (c *Client) PinJSONToIPFS(data interface{}, options *PinOptions) (*pinResponse, error) {
 	if data == nil {
 		return nil, fmt.Errorf("ERR: jsonData is required")
 	}
@@ -313,7 +313,7 @@ func (c *client) PinJSONToIPFS(data interface{}, options *PinOptions) (*pinRespo
 // PinByCid pins the content identified by the provided hashToPin to IPFS using the Pinata API.
 // The optional PinByCidOptions can be used to provide additional metadata and options for the pin operation.
 // Returns a PinByCidResponse containing information about the pinned content.
-func (c *client) PinByCid(hashToPin string, options *PinByCidOptions) (*pinByCidResponse, error) {
+func (c *Client) PinByCid(hashToPin string, options *PinByCidOptions) (*pinByCidResponse, error) {
 	if hashToPin == "" {
 		return nil, fmt.Errorf("ERR: hashToPin is required")
 	}
@@ -341,7 +341,7 @@ func (c *client) PinByCid(hashToPin string, options *PinByCidOptions) (*pinByCid
 
 // ListFiles returns a list of files that have been pinned to Pinata.
 // The options parameter can be used to filter the list of files.
-func (c *client) ListFiles(options *ListFilesOptions) (*listFilesResponse, error) {
+func (c *Client) ListFiles(options *ListFilesOptions) (*listFilesResponse, error) {
 	req := c.NewRequest(http.MethodGet, "/data/pinList")
 	if options != nil {
 		req.setListPinsQueryParams(options)
@@ -359,7 +359,7 @@ func (c *client) ListFiles(options *ListFilesOptions) (*listFilesResponse, error
 // ListPinByCidJobs returns a list of pin jobs for the provided ListPinByCidOptions.
 // The ListPinByCidOptions can be used to filter the list of pin jobs.
 // Returns a listPinByCidResponse containing information about the pin jobs.
-func (c *client) ListPinByCidJobs(options *ListPinByCidOptions) (*listPinByCidResponse, error) {
+func (c *Client) ListPinByCidJobs(options *ListPinByCidOptions) (*listPinByCidResponse, error) {
 	req := c.NewRequest(http.MethodGet, "/pinning/pinJobs")
 	if options != nil {
 		req.setListPinsByCidQueryParams(options)
@@ -378,7 +378,7 @@ func (c *client) ListPinByCidJobs(options *ListPinByCidOptions) (*listPinByCidRe
 // The fileHash parameter specifies the hash of the file to update.
 // The options parameter specifies the new metadata to apply, including the name and key-value pairs.
 // Returns an error if the fileHash or options are not provided, or if there is an error updating the metadata.
-func (c *client) UpdateFileMetadata(fileHash string, options *PinMetadataUpdateOptions) error {
+func (c *Client) UpdateFileMetadata(fileHash string, options *PinMetadataUpdateOptions) error {
 	if fileHash == "" || options == nil {
 		return fmt.Errorf("ERR: fileHash and options are required")
 	}
@@ -403,7 +403,7 @@ func (c *client) UpdateFileMetadata(fileHash string, options *PinMetadataUpdateO
 // DeleteFile deletes the file with the given CID (content identifier) from the Pinata service.
 // If the cid parameter is an empty string, an error is returned.
 // Returns an error if the file could not be deleted.
-func (c *client) DeleteFile(cid string) error {
+func (c *Client) DeleteFile(cid string) error {
 	if cid == "" {
 		return fmt.Errorf("cid is required")
 	}

@@ -7,13 +7,13 @@ import (
 
 const BaseURL = "https://api.pinata.cloud"
 
-// client is the main struct for interacting with the Pinata API. It contains the necessary
+// Client is the main struct for interacting with the Pinata API. It contains the necessary
 // configuration and authentication details to make requests to the API.
-type client struct {
-	BaseURL    string
-	HTTPClient *http.Client
-	Auth       *Auth
-	Transport  *http.Transport
+type Client struct {
+	baseURL    string
+	httpClient *http.Client
+	auth       *auth
+	transport  *http.Transport
 }
 
 // authTestResponse represents the response from the Pinata API's test authentication endpoint.
@@ -26,28 +26,28 @@ type authTestResponse struct {
 // It configures the HTTP client with a transport that has a maximum of 100 idle connections,
 // a maximum of 100 idle connections per host, and an idle connection timeout of 90 seconds.
 // The HTTP client also has a timeout of 30 seconds.
-func New(auth *Auth) *client {
+func New(auth *auth) *Client {
 	transport := &http.Transport{
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,
 		IdleConnTimeout:     90 * time.Second,
 	}
 
-	return &client{
-		BaseURL: BaseURL,
-		HTTPClient: &http.Client{
+	return &Client{
+		baseURL: BaseURL,
+		httpClient: &http.Client{
 			Timeout:   time.Second * 30,
 			Transport: transport,
 		},
-		Auth:      auth,
-		Transport: transport,
+		auth:      auth,
+		transport: transport,
 	}
 }
 
 // NewRequest creates a new request builder for the Pinata API. The request builder
 // allows for configuring the HTTP method, path, path parameters, query parameters,
 // and headers before sending the request.
-func (c *client) NewRequest(method, path string) *requestBuilder {
+func (c *Client) NewRequest(method, path string) *requestBuilder {
 	return &requestBuilder{
 		client:      c,
 		method:      method,
@@ -61,7 +61,7 @@ func (c *client) NewRequest(method, path string) *requestBuilder {
 // TestAuthentication tests the authentication credentials configured in the Pinata API client.
 // It sends a GET request to the "/data/testAuthentication" endpoint and returns the response
 // message indicating whether the authentication was successful or not.
-func (c *client) TestAuthentication() (*authTestResponse, error) {
+func (c *Client) TestAuthentication() (*authTestResponse, error) {
 	var response authTestResponse
 	err := c.NewRequest(http.MethodGet, "/data/testAuthentication").
 		Send(&response)

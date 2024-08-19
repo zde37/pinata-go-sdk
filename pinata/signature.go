@@ -15,7 +15,7 @@ type cidSignature struct {
 
 // AddCidSignature adds a signature for the given CID. If either the CID or the
 // signature is empty, an error is returned.
-func (c *client) AddCidSignature(cid, signature string) (*cidSignature, error) {
+func (c *Client) AddCidSignature(cid, signature string) (*cidSignature, error) {
 	if cid == "" || signature == "" {
 		return nil, fmt.Errorf("cid and signature is required")
 	}
@@ -42,7 +42,7 @@ func (c *client) AddCidSignature(cid, signature string) (*cidSignature, error) {
 // If the CID is empty, an error is returned.
 // The CidSignature struct is returned, which contains the CID and its signature.
 // If an error occurs during the API request, the error is returned.
-func (c *client) GetCidSignature(cid string) (*cidSignature, error) {
+func (c *Client) GetCidSignature(cid string) (*cidSignature, error) {
 	if cid == "" {
 		return nil, fmt.Errorf("cid is required")
 	}
@@ -61,7 +61,7 @@ func (c *client) GetCidSignature(cid string) (*cidSignature, error) {
 // RemoveCidSignature removes the signature for the given CID from the Pinata API.
 // If the CID is empty, an error is returned.
 // If an error occurs during the API request, the error is returned.
-func (c *client) RemoveCidSignature(cid string) error {
+func (c *Client) RemoveCidSignature(cid string) error {
 	if cid == "" {
 		return fmt.Errorf("cid is required")
 	}

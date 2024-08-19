@@ -27,7 +27,7 @@ type ListGroupsOptions struct {
 // CreateGroup creates a new Pinata group with the specified name.
 // It returns the newly created Group object, or an error if the creation failed.
 // The group name is required and cannot be an empty string.
-func (c *client) CreateGroup(groupName string) (*Group, error) {
+func (c *Client) CreateGroup(groupName string) (*Group, error) {
 	if groupName == "" {
 		return nil, fmt.Errorf("group name is required")
 	}
@@ -53,7 +53,7 @@ func (c *client) CreateGroup(groupName string) (*Group, error) {
 // If the provided groupID is empty, an error is returned.
 // Otherwise, the function makes a GET request to the "/groups/{id}" endpoint
 // and returns the corresponding Group struct, or an error if the request fails.
-func (c *client) GetGroup(groupID string) (*Group, error) {
+func (c *Client) GetGroup(groupID string) (*Group, error) {
 	if groupID == "" {
 		return nil, fmt.Errorf("group id is required")
 	}
@@ -72,7 +72,7 @@ func (c *client) GetGroup(groupID string) (*Group, error) {
 // ListGroups retrieves a list of Pinata groups based on the provided options.
 // If options is nil, the function will return all groups without any filtering or pagination.
 // Otherwise, the function will apply the specified limit and offset to the list of groups.
-func (c *client) ListGroups(options *ListGroupsOptions) ([]Group, error) {
+func (c *Client) ListGroups(options *ListGroupsOptions) ([]Group, error) {
 	req := c.NewRequest(http.MethodGet, "/groups")
 	if options != nil {
 		req.setListGroupsQueryParams(options)
@@ -93,7 +93,7 @@ func (c *client) ListGroups(options *ListGroupsOptions) ([]Group, error) {
 // Otherwise, the function makes a PUT request to the "/groups/{id}" endpoint
 // with the new group name in the request body, and returns the updated
 // Group struct, or an error if the request fails.
-func (c *client) UpdateGroup(groupID, newGroupName string) (*Group, error) {
+func (c *Client) UpdateGroup(groupID, newGroupName string) (*Group, error) {
 	if groupID == "" || newGroupName == "" {
 		return nil, fmt.Errorf("group id and new group name are required")
 	}
@@ -118,7 +118,7 @@ func (c *client) UpdateGroup(groupID, newGroupName string) (*Group, error) {
 
 // AddCidToGroup adds the specified CIDs to the group with the given ID.
 // If the group ID or the list of CIDs is empty, an error is returned.
-func (c *client) AddCidToGroup(groupID string, cids []string) error {
+func (c *Client) AddCidToGroup(groupID string, cids []string) error {
 	if groupID == "" || len(cids) == 0 {
 		return fmt.Errorf("group id and at least one cid is required")
 	}
@@ -142,7 +142,7 @@ func (c *client) AddCidToGroup(groupID string, cids []string) error {
 
 // RemoveCidFromGroup removes the specified CIDs from the group with the given ID.
 // If the group ID or the list of CIDs is empty, an error is returned.
-func (c *client) RemoveCidFromGroup(groupID string, cids []string) error {
+func (c *Client) RemoveCidFromGroup(groupID string, cids []string) error {
 	if groupID == "" || len(cids) == 0 {
 		return fmt.Errorf("group id and at least one cid is required")
 	}
@@ -166,7 +166,7 @@ func (c *client) RemoveCidFromGroup(groupID string, cids []string) error {
 
 // RemoveGroup removes the group with the specified ID.
 // If the group ID is empty, an error is returned.
-func (c *client) RemoveGroup(groupID string) error {
+func (c *Client) RemoveGroup(groupID string) error {
 	if groupID == "" {
 		return fmt.Errorf("group id is required")
 	}

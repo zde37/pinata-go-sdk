@@ -14,7 +14,7 @@ import (
 // requestBuilder is a struct that encapsulates the parameters and options for building an HTTP request.
 // It provides methods for adding path parameters, query parameters, headers, and request bodies.
 type requestBuilder struct {
-	client      *client
+	client      *Client
 	method      string
 	path        string
 	pathParams  map[string]string
@@ -209,7 +209,7 @@ func (rb *requestBuilder) buildURL() (string, error) {
 		path = strings.Replace(path, placeholder, url.PathEscape(value), -1)
 	}
 
-	reqURL, err := url.Parse(rb.client.BaseURL + path)
+	reqURL, err := url.Parse(rb.client.baseURL + path)
 	if err != nil {
 		return "", err
 	}
@@ -243,14 +243,14 @@ func (rb *requestBuilder) Send(v interface{}) error {
 	}
 
 	// Set auth header
-	rb.client.Auth.setAuthHeader(req)
+	rb.client.auth.setAuthHeader(req)
 
 	// Set content type if body is present
 	if rb.body != nil {
 		req.Header.Set("Content-Type", rb.contentType)
 	}
 
-	resp, err := rb.client.HTTPClient.Do(req)
+	resp, err := rb.client.httpClient.Do(req)
 	if err != nil {
 		return err
 	}

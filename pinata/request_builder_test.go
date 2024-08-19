@@ -700,7 +700,7 @@ func TestSetListPinsByCidQueryParams(t *testing.T) {
 func TestBuildURL(t *testing.T) {
 	t.Run("successful URL build with path params and query params", func(t *testing.T) {
 		rb := &requestBuilder{
-			client: &client{BaseURL: "https://api.pinata.cloud"},
+			client: &Client{baseURL: "https://api.pinata.cloud"},
 			path:   "/v1/pinning/{pinType}/{hashToPin}",
 			pathParams: map[string]string{
 				"pinType":   "pinByHash",
@@ -719,7 +719,7 @@ func TestBuildURL(t *testing.T) {
 
 	t.Run("error when path parameter is wrong", func(t *testing.T) {
 		rb := &requestBuilder{
-			client: &client{BaseURL: "https://api.pinata.cloud"},
+			client: &Client{baseURL: "https://api.pinata.cloud"},
 			path:   "/v1/pinning/{pinType}/{hashToPin1}",
 			pathParams: map[string]string{
 				"hashToPin": "hashToPin",
@@ -734,7 +734,7 @@ func TestBuildURL(t *testing.T) {
 
 	t.Run("URL encoding of path parameters", func(t *testing.T) {
 		rb := &requestBuilder{
-			client: &client{BaseURL: "https://api.pinata.cloud"},
+			client: &Client{baseURL: "https://api.pinata.cloud"},
 			path:   "/v1/files/{fileName}",
 			pathParams: map[string]string{
 				"fileName": "test file with spaces.txt",
@@ -749,7 +749,7 @@ func TestBuildURL(t *testing.T) {
 
 	t.Run("multiple query parameters", func(t *testing.T) {
 		rb := &requestBuilder{
-			client: &client{BaseURL: "https://api.pinata.cloud"},
+			client: &Client{baseURL: "https://api.pinata.cloud"},
 			path:   "/v1/data",
 			queryParams: map[string]string{
 				"status": "pinned",
@@ -778,10 +778,10 @@ func TestSend(t *testing.T) {
 		}))
 		defer mockServer.Close()
 
-		client := &client{
-			BaseURL:    mockServer.URL,
-			HTTPClient: mockServer.Client(),
-			Auth:       NewAuthWithJWT("test_token"),
+		client := &Client{
+			baseURL:    mockServer.URL,
+			httpClient: mockServer.Client(),
+			auth:       NewAuthWithJWT("test_token"),
 		}
 
 		rb := &requestBuilder{
@@ -807,10 +807,10 @@ func TestSend(t *testing.T) {
 		}))
 		defer mockServer.Close()
 
-		client := &client{
-			BaseURL:    mockServer.URL,
-			HTTPClient: mockServer.Client(),
-			Auth:       NewAuthWithJWT("test_token"),
+		client := &Client{
+			baseURL:    mockServer.URL,
+			httpClient: mockServer.Client(),
+			auth:       NewAuthWithJWT("test_token"),
 		}
 
 		rb := &requestBuilder{
@@ -838,10 +838,10 @@ func TestSend(t *testing.T) {
 		}))
 		defer mockServer.Close()
 
-		client := &client{
-			BaseURL:    mockServer.URL,
-			HTTPClient: mockServer.Client(),
-			Auth:       NewAuthWithJWT("test_token"),
+		client := &Client{
+			baseURL:    mockServer.URL,
+			httpClient: mockServer.Client(),
+			auth:       NewAuthWithJWT("test_token"),
 		}
 
 		rb := &requestBuilder{
@@ -872,10 +872,10 @@ func TestSend(t *testing.T) {
 		}))
 		defer mockServer.Close()
 
-		client := &client{
-			BaseURL:    mockServer.URL,
-			HTTPClient: mockServer.Client(),
-			Auth:       NewAuthWithJWT("test_token"),
+		client := &Client{
+			baseURL:    mockServer.URL,
+			httpClient: mockServer.Client(),
+			auth:       NewAuthWithJWT("test_token"),
 		}
 
 		rb := &requestBuilder{
@@ -899,10 +899,10 @@ func TestSend(t *testing.T) {
 		}))
 		defer mockServer.Close()
 
-		client := &client{
-			BaseURL:    mockServer.URL,
-			HTTPClient: mockServer.Client(),
-			Auth:       NewAuthWithJWT("test_token"),
+		client := &Client{
+			baseURL:    mockServer.URL,
+			httpClient: mockServer.Client(),
+			auth:       NewAuthWithJWT("test_token"),
 		}
 
 		rb := &requestBuilder{
@@ -918,12 +918,12 @@ func TestSend(t *testing.T) {
 	})
 
 	t.Run("network error", func(t *testing.T) {
-		client := &client{
-			BaseURL: "http://non-existent-url",
-			HTTPClient: &http.Client{
+		client := &Client{
+			baseURL: "http://non-existent-url",
+			httpClient: &http.Client{
 				Timeout: time.Millisecond,
 			},
-			Auth: NewAuthWithJWT("test_token"),
+			auth: NewAuthWithJWT("test_token"),
 		}
 
 		rb := &requestBuilder{
