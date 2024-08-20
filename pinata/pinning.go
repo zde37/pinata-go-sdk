@@ -36,20 +36,29 @@ const (
 // PinataOptions contains options specific to the Pinata platform, such as the CID version.
 type PinOptions struct {
 	PinataMetadata PinataMetadata `json:"pinataMetadata,omitempty"`
-	PinataOptions  struct {
-		CidVersion int `json:"cidVersion,omitempty"`
-	} `json:"pinataOptions,omitempty"`
+	PinataOptions  Options        `json:"pinataOptions,omitempty"`
+}
+
+// Options represents options specific to the Pinata platform, such as the CID version.
+// CidVersion is the version of the IPFS content identifier (CID) to use.
+type Options struct {
+	CidVersion int `json:"cidVersion,omitempty"`
 }
 
 // PinByCidOptions represents the options for pinning a file or directory to Pinata by its CID.
 // PinataOptions contains options specific to the Pinata platform, such as the group ID and host nodes.
 // PinataMetadata contains metadata about the file or directory being pinned.
 type PinByCidOptions struct {
-	PinataOptions struct {
-		GroupId   string   `json:"groupId,omitempty"`
-		HostNodes []string `json:"hostNodes,omitempty"`
-	} `json:"pinataOptions,omitempty"`
+	PinataOptions  PinOpts        `json:"pinataOptions,omitempty"`
 	PinataMetadata PinataMetadata `json:"pinataMetadata,omitempty"`
+}
+
+// PinOpts represents options specific to the Pinata platform, such as the group ID and host nodes.
+// GroupId is the ID of the group to pin the content to.
+// HostNodes is a list of host nodes to use for pinning the content.
+type PinOpts struct {
+	GroupId   string   `json:"groupId,omitempty"`
+	HostNodes []string `json:"hostNodes,omitempty"`
 }
 
 // pinByCidResponse represents the response from pinning a file or directory to Pinata by its CID.
@@ -210,11 +219,13 @@ type pinEntry struct {
 // Regions specifies the geographic regions where the file should be pinned, and the desired replication count for each region.
 // Version specifies the version of the pin policy.
 type pinPolicy struct {
-	Regions []struct {
-		ID                      string `json:"id,omitempty"`
-		DesiredReplicationCount int    `json:"desiredReplicationCount,omitempty"`
-	} `json:"regions,omitempty"`
-	Version int `json:"version,omitempty"`
+	Regions []regions `json:"regions,omitempty"`
+	Version int       `json:"version,omitempty"`
+}
+
+type regions struct {
+	ID                      string `json:"id,omitempty"`
+	DesiredReplicationCount int    `json:"desiredReplicationCount,omitempty"`
 }
 
 // PinFileToIPFS uploads a file to IPFS and pins it to the Pinata network.

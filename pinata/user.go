@@ -32,12 +32,18 @@ type apiKey struct {
 // The Endpoints field contains the specific permissions for different API endpoints,
 // while the Admin field indicates if the API key has full administrative access.
 type scope struct {
-	Endpoints struct {
-		Data    scopeData    `json:"data"`
-		Pinning scopePinning `json:"pinning"`
-		Psa     scopePsa     `json:"psa"`
-	} `json:"endpoints"`
-	Admin bool `json:"admin,omitempty"`
+	Endpoints scopeEndpoints `json:"endpoints"`
+	Admin     bool           `json:"admin,omitempty"`
+}
+
+// scopeEndpoints represents the permissions and access scopes for different API endpoints.
+// The Data field contains the data-related permissions, such as the ability to list pinned data and retrieve the total amount of pinned data.
+// The Pinning field contains the permissions for the Pinning API endpoints, such as the ability to pin files, hash metadata, and manage pin jobs.
+// The Psa field contains the permissions for the PSA (Pinata Secure API) endpoints, such as the ability to add, get, list, remove, and replace pin objects.
+type scopeEndpoints struct {
+	Data    scopeData    `json:"data"`
+	Pinning scopePinning `json:"pinning"`
+	Psa     scopePsa     `json:"psa"`
 }
 
 // scopeData represents the data-related permissions for an API key.
@@ -51,13 +57,21 @@ type scopeData struct {
 // scopePsa represents the permissions and access scopes for the PSA (Pinata Secure API) endpoints.
 // The Pins field contains the specific permissions for different PSA pin-related operations.
 type scopePsa struct {
-	Pins struct {
-		AddPinObject     bool `json:"addPinObject"`
-		GetPinObject     bool `json:"getPinObject"`
-		ListPinObjects   bool `json:"listPinObjects"`
-		RemovePinObject  bool `json:"removePinObject"`
-		ReplacePinObject bool `json:"replacePinObject"`
-	} `json:"pins"`
+	Pins psaPins `json:"pins"`
+}
+
+// psaPins represents the permissions and access scopes for the PSA (Pinata Secure API) pin-related operations.
+// The AddPinObject field indicates if the API key can add a new pin object.
+// The GetPinObject field indicates if the API key can retrieve a pin object.
+// The ListPinObjects field indicates if the API key can list the user's pin objects.
+// The RemovePinObject field indicates if the API key can remove a pin object.
+// The ReplacePinObject field indicates if the API key can replace a pin object.
+type psaPins struct {
+	AddPinObject     bool `json:"addPinObject"`
+	GetPinObject     bool `json:"getPinObject"`
+	ListPinObjects   bool `json:"listPinObjects"`
+	RemovePinObject  bool `json:"removePinObject"`
+	ReplacePinObject bool `json:"replacePinObject"`
 }
 
 // scopePinning represents the permissions and access scopes for the Pinning API endpoints.

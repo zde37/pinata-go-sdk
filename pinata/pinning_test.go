@@ -13,7 +13,7 @@ import (
 
 func TestPinFileToIPFS(t *testing.T) {
 	t.Run("successful file pinning", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		tempFile, err := os.CreateTemp("", "test_file_*.txt")
 		require.NoError(t, err)
@@ -56,7 +56,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("empty file path", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinFileToIPFS("", nil)
@@ -67,7 +67,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("non-existent file", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinFileToIPFS("/path/to/non/existent/file.txt", nil)
@@ -78,7 +78,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("with pin options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		tempFile, err := os.CreateTemp("", "test_file_*.txt")
 		require.NoError(t, err)
@@ -121,7 +121,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		tempFile, err := os.CreateTemp("", "test_file_*.txt")
 		require.NoError(t, err)
@@ -148,7 +148,7 @@ func TestPinFileToIPFS(t *testing.T) {
 
 func TestPinJSONToIPFS(t *testing.T) {
 	t.Run("successful JSON pinning", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -179,7 +179,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 	})
 
 	t.Run("nil data", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinJSONToIPFS(nil, nil)
@@ -190,7 +190,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 	})
 
 	t.Run("with pin options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -236,7 +236,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +257,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 
 func TestPinByCid(t *testing.T) {
 	t.Run("successful pin by CID", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -287,7 +287,7 @@ func TestPinByCid(t *testing.T) {
 	})
 
 	t.Run("empty hash to pin", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		response, err := client.PinByCid("", nil)
@@ -298,7 +298,7 @@ func TestPinByCid(t *testing.T) {
 	})
 
 	t.Run("with pin options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -344,7 +344,7 @@ func TestPinByCid(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -364,7 +364,7 @@ func TestPinByCid(t *testing.T) {
 
 func TestListFiles(t *testing.T) {
 	t.Run("successful list files without options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -392,7 +392,7 @@ func TestListFiles(t *testing.T) {
 	})
 
 	t.Run("list files with options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -432,7 +432,7 @@ func TestListFiles(t *testing.T) {
 	})
 
 	t.Run("empty response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -451,7 +451,7 @@ func TestListFiles(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -471,7 +471,7 @@ func TestListFiles(t *testing.T) {
 
 func TestListPinByCidJobs(t *testing.T) {
 	t.Run("successful list pin by CID jobs without options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -498,7 +498,7 @@ func TestListPinByCidJobs(t *testing.T) {
 	})
 
 	t.Run("list pin by CID jobs with options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -535,7 +535,7 @@ func TestListPinByCidJobs(t *testing.T) {
 	})
 
 	t.Run("empty response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -554,7 +554,7 @@ func TestListPinByCidJobs(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -574,7 +574,7 @@ func TestListPinByCidJobs(t *testing.T) {
 
 func TestUpdateFileMetadata(t *testing.T) {
 	t.Run("successful update", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -608,7 +608,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 	})
 
 	t.Run("empty file hash", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		options := &PinMetadataUpdateOptions{
@@ -621,7 +621,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 	})
 
 	t.Run("nil options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.UpdateFileMetadata("QmTestHash123", nil)
@@ -631,7 +631,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -653,7 +653,7 @@ func TestUpdateFileMetadata(t *testing.T) {
 
 func TestDeleteFile(t *testing.T) {
 	t.Run("successful delete", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -672,7 +672,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("empty CID", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.DeleteFile("")
@@ -682,7 +682,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -699,7 +699,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("not found error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -716,7 +716,7 @@ func TestDeleteFile(t *testing.T) {
 	})
 
 	t.Run("unauthorized error", func(t *testing.T) {
-		auth := &auth{jwt: "invalid_jwt_token"}
+		auth := &Auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

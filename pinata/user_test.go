@@ -11,7 +11,7 @@ import (
 
 func TestGenerateApiKey(t *testing.T) {
 	t.Run("successful API key generation", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/users/generateApiKey", r.URL.Path)
@@ -40,7 +40,7 @@ func TestGenerateApiKey(t *testing.T) {
 	})
 
 	t.Run("nil options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		secret, err := client.GenerateApiKey(nil)
@@ -51,7 +51,7 @@ func TestGenerateApiKey(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -69,7 +69,7 @@ func TestGenerateApiKey(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -89,7 +89,7 @@ func TestGenerateApiKey(t *testing.T) {
 
 func TestGenerateApiKeyV3(t *testing.T) {
 	t.Run("successful API key generation", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys", r.URL.Path)
@@ -118,7 +118,7 @@ func TestGenerateApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("nil options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		secret, err := client.GenerateApiKeyV3(nil)
@@ -129,7 +129,7 @@ func TestGenerateApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("server error response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -147,7 +147,7 @@ func TestGenerateApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -167,7 +167,7 @@ func TestGenerateApiKeyV3(t *testing.T) {
 
 func TestListApiKeys(t *testing.T) {
 	t.Run("successful API key listing", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/users/apiKeys", r.URL.Path)
@@ -190,7 +190,7 @@ func TestListApiKeys(t *testing.T) {
 	})
 
 	t.Run("empty API key list", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -207,7 +207,7 @@ func TestListApiKeys(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -224,7 +224,7 @@ func TestListApiKeys(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -241,7 +241,7 @@ func TestListApiKeys(t *testing.T) {
 	})
 
 	t.Run("unauthorized request", func(t *testing.T) {
-		auth := &auth{jwt: "invalid_jwt_token"}
+		auth := &Auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -260,7 +260,7 @@ func TestListApiKeys(t *testing.T) {
 
 func TestListApiKeyV3(t *testing.T) {
 	t.Run("successful API key listing with options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys", r.URL.Path)
@@ -288,7 +288,7 @@ func TestListApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("successful API key listing without options", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys", r.URL.Path)
@@ -312,7 +312,7 @@ func TestListApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("server error response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -329,7 +329,7 @@ func TestListApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -346,7 +346,7 @@ func TestListApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("empty API key list", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -366,7 +366,7 @@ func TestListApiKeyV3(t *testing.T) {
 
 func TestRevokeApiKey(t *testing.T) {
 	t.Run("successful API key revocation", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/users/revokeApiKey", r.URL.Path)
@@ -390,7 +390,7 @@ func TestRevokeApiKey(t *testing.T) {
 	})
 
 	t.Run("empty API key", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.RevokeApiKey("")
@@ -400,7 +400,7 @@ func TestRevokeApiKey(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -416,7 +416,7 @@ func TestRevokeApiKey(t *testing.T) {
 	})
 
 	t.Run("network error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		client.baseURL = "http://invalid-url"
 
@@ -426,7 +426,7 @@ func TestRevokeApiKey(t *testing.T) {
 	})
 
 	t.Run("unauthorized request", func(t *testing.T) {
-		auth := &auth{jwt: "invalid_jwt_token"}
+		auth := &Auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -444,7 +444,7 @@ func TestRevokeApiKey(t *testing.T) {
 
 func TestRevokeApiKeyV3(t *testing.T) {
 	t.Run("successful API key revocation", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/pinata/keys/test_api_key", r.URL.Path)
@@ -461,7 +461,7 @@ func TestRevokeApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("empty API key", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.RevokeApiKeyV3("")
@@ -471,7 +471,7 @@ func TestRevokeApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -487,7 +487,7 @@ func TestRevokeApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("network error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		client.baseURL = "http://invalid-url"
 
@@ -497,7 +497,7 @@ func TestRevokeApiKeyV3(t *testing.T) {
 	})
 
 	t.Run("unauthorized request", func(t *testing.T) {
-		auth := &auth{jwt: "invalid_jwt_token"}
+		auth := &Auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)

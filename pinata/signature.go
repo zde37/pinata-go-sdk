@@ -7,10 +7,13 @@ import (
 
 // cidSignature represents the response from the Pinata API for a CID signature.
 type cidSignature struct {
-	Data struct {
-		Cid       string `json:"cid,omitempty"`
-		Signature string `json:"signature,omitempty"`
-	} `json:"data,omitempty"`
+	Data sigData `json:"data,omitempty"`
+}
+
+// sigData represents the data for a CID signature, including the CID and the signature.
+type sigData struct {
+	Cid       string `json:"cid,omitempty"`
+	Signature string `json:"signature,omitempty"`
 }
 
 // AddCidSignature adds a signature for the given CID. If either the CID or the

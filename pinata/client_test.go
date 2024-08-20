@@ -11,7 +11,7 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Run("with default settings", func(t *testing.T) {
-		auth := &auth{
+		auth := &Auth{
 			jwt: "test_jwt_token",
 		}
 		client := New(auth)
@@ -31,7 +31,7 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("with custom base URL", func(t *testing.T) {
-		auth := &auth{
+		auth := &Auth{
 			apiKey:    "test_api_key",
 			apiSecret: "test_api_secret",
 		}
@@ -49,7 +49,7 @@ func TestNew(t *testing.T) {
 	})
 
 	t.Run("transport equality", func(t *testing.T) {
-		client := New(&auth{})
+		client := New(&Auth{})
 
 		require.Equal(t, client.transport, client.httpClient.Transport)
 	})
@@ -57,7 +57,7 @@ func TestNew(t *testing.T) {
 
 func TestNewRequest(t *testing.T) {
 	t.Run("basic request creation", func(t *testing.T) {
-		client := New(&auth{jwt: "test_jwt"})
+		client := New(&Auth{jwt: "test_jwt"})
 		rb := client.NewRequest(http.MethodGet, "/test/path")
 
 		require.NotNil(t, rb)
@@ -70,7 +70,7 @@ func TestNewRequest(t *testing.T) {
 	})
 
 	t.Run("different HTTP methods", func(t *testing.T) {
-		client := New(&auth{jwt: "test_jwt"})
+		client := New(&Auth{jwt: "test_jwt"})
 		methods := []string{http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch}
 
 		for _, method := range methods {
@@ -80,14 +80,14 @@ func TestNewRequest(t *testing.T) {
 	})
 
 	t.Run("path with special characters", func(t *testing.T) {
-		client := New(&auth{jwt: "test_jwt"})
+		client := New(&Auth{jwt: "test_jwt"})
 		rb := client.NewRequest(http.MethodGet, "/test/path with spaces/and/special-chars!@#$%^&*()")
 
 		require.Equal(t, "/test/path with spaces/and/special-chars!@#$%^&*()", rb.path)
 	})
 
 	t.Run("empty path", func(t *testing.T) {
-		client := New(&auth{jwt: "test_jwt"})
+		client := New(&Auth{jwt: "test_jwt"})
 		rb := client.NewRequest(http.MethodGet, "")
 
 		require.Equal(t, "", rb.path)
@@ -96,7 +96,7 @@ func TestNewRequest(t *testing.T) {
 
 func TestTestAuthentication(t *testing.T) {
 	t.Run("successful authentication", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/data/testAuthentication", r.URL.Path)
@@ -116,7 +116,7 @@ func TestTestAuthentication(t *testing.T) {
 	})
 
 	t.Run("authentication failure", func(t *testing.T) {
-		auth := &auth{jwt: "invalid_jwt_token"}
+		auth := &Auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -133,7 +133,7 @@ func TestTestAuthentication(t *testing.T) {
 	})
 
 	t.Run("network error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		client.baseURL = "http://non-existent-url.com"
 

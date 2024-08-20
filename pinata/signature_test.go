@@ -11,7 +11,7 @@ import (
 
 func TestAddCidSignature(t *testing.T) {
 	t.Run("successful signature addition", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/ipfs/signature/test_cid", r.URL.Path)
@@ -39,7 +39,7 @@ func TestAddCidSignature(t *testing.T) {
 	})
 
 	t.Run("empty cid", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		cidSignature, err := client.AddCidSignature("", "test_signature")
@@ -50,7 +50,7 @@ func TestAddCidSignature(t *testing.T) {
 	})
 
 	t.Run("empty signature", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		cidSignature, err := client.AddCidSignature("test_cid", "")
@@ -61,7 +61,7 @@ func TestAddCidSignature(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -78,7 +78,7 @@ func TestAddCidSignature(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -97,7 +97,7 @@ func TestAddCidSignature(t *testing.T) {
 
 func TestGetCidSignature(t *testing.T) {
 	t.Run("successful signature retrieval", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/ipfs/signature/test_cid", r.URL.Path)
@@ -119,7 +119,7 @@ func TestGetCidSignature(t *testing.T) {
 	})
 
 	t.Run("empty cid", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		cidSignature, err := client.GetCidSignature("")
@@ -130,7 +130,7 @@ func TestGetCidSignature(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -147,7 +147,7 @@ func TestGetCidSignature(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -164,7 +164,7 @@ func TestGetCidSignature(t *testing.T) {
 	})
 
 	t.Run("not found error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
@@ -183,7 +183,7 @@ func TestGetCidSignature(t *testing.T) {
 
 func TestRemoveCidSignature(t *testing.T) {
 	t.Run("successful signature removal", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/v3/ipfs/signature/test_cid", r.URL.Path)
@@ -200,7 +200,7 @@ func TestRemoveCidSignature(t *testing.T) {
 	})
 
 	t.Run("empty cid", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.RemoveCidSignature("")
@@ -210,7 +210,7 @@ func TestRemoveCidSignature(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -226,7 +226,7 @@ func TestRemoveCidSignature(t *testing.T) {
 	})
 
 	t.Run("not found error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
@@ -242,7 +242,7 @@ func TestRemoveCidSignature(t *testing.T) {
 	})
 
 	t.Run("unauthorized error", func(t *testing.T) {
-		auth := &auth{jwt: "invalid_jwt_token"}
+		auth := &Auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)

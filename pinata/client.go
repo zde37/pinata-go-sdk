@@ -12,7 +12,7 @@ const BaseURL = "https://api.pinata.cloud"
 type Client struct {
 	baseURL    string
 	httpClient *http.Client
-	auth       *auth
+	auth       *Auth
 	transport  *http.Transport
 }
 
@@ -26,7 +26,7 @@ type authTestResponse struct {
 // It configures the HTTP client with a transport that has a maximum of 100 idle connections,
 // a maximum of 100 idle connections per host, and an idle connection timeout of 90 seconds.
 // The HTTP client also has a timeout of 30 seconds.
-func New(auth *auth) *Client {
+func New(auth *Auth) *Client {
 	transport := &http.Transport{
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 100,

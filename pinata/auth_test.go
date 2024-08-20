@@ -83,7 +83,7 @@ func TestNewAuthWithJWT(t *testing.T) {
 
 func TestSetAuthHeader(t *testing.T) {
 	t.Run("with JWT", func(t *testing.T) {
-		auth := &auth{
+		auth := &Auth{
 			jwt: "test_jwt_token",
 		}
 		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
@@ -97,7 +97,7 @@ func TestSetAuthHeader(t *testing.T) {
 	})
 
 	t.Run("with API key and secret", func(t *testing.T) {
-		auth := &auth{
+		auth := &Auth{
 			apiKey:    "test_api_key",
 			apiSecret: "test_api_secret",
 		}
@@ -111,7 +111,7 @@ func TestSetAuthHeader(t *testing.T) {
 	})
 
 	t.Run("with empty auth", func(t *testing.T) {
-		auth := &auth{}
+		auth := &Auth{}
 		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 
 		auth.setAuthHeader(req)
@@ -122,7 +122,7 @@ func TestSetAuthHeader(t *testing.T) {
 	})
 
 	t.Run("JWT takes precedence over API key and secret", func(t *testing.T) {
-		auth := &auth{
+		auth := &Auth{
 			jwt:       "test_jwt_token",
 			apiKey:    "test_api_key",
 			apiSecret: "test_api_secret",

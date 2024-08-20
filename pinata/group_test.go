@@ -11,7 +11,7 @@ import (
 
 func TestCreateGroup(t *testing.T) {
 	t.Run("successful group creation", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups", r.URL.Path)
@@ -39,7 +39,7 @@ func TestCreateGroup(t *testing.T) {
 	})
 
 	t.Run("empty group name", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		group, err := client.CreateGroup("")
@@ -50,7 +50,7 @@ func TestCreateGroup(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -67,7 +67,7 @@ func TestCreateGroup(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusCreated)
@@ -86,7 +86,7 @@ func TestCreateGroup(t *testing.T) {
 
 func TestGetGroup(t *testing.T) {
 	t.Run("successful group retrieval", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123", r.URL.Path)
@@ -108,7 +108,7 @@ func TestGetGroup(t *testing.T) {
 	})
 
 	t.Run("empty group ID", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		group, err := client.GetGroup("")
@@ -119,7 +119,7 @@ func TestGetGroup(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -136,7 +136,7 @@ func TestGetGroup(t *testing.T) {
 	})
 
 	t.Run("not found error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
@@ -153,7 +153,7 @@ func TestGetGroup(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -172,7 +172,7 @@ func TestGetGroup(t *testing.T) {
 
 func TestListGroups(t *testing.T) {
 	t.Run("successful groups listing", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups", r.URL.Path)
@@ -197,7 +197,7 @@ func TestListGroups(t *testing.T) {
 	})
 
 	t.Run("with query parameters", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups", r.URL.Path)
@@ -226,7 +226,7 @@ func TestListGroups(t *testing.T) {
 	})
 
 	t.Run("empty response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -243,7 +243,7 @@ func TestListGroups(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -260,7 +260,7 @@ func TestListGroups(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -279,7 +279,7 @@ func TestListGroups(t *testing.T) {
 
 func TestUpdateGroup(t *testing.T) {
 	t.Run("successful group update", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123", r.URL.Path)
@@ -307,7 +307,7 @@ func TestUpdateGroup(t *testing.T) {
 	})
 
 	t.Run("empty group ID", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		group, err := client.UpdateGroup("", "new_group_name")
@@ -318,7 +318,7 @@ func TestUpdateGroup(t *testing.T) {
 	})
 
 	t.Run("empty new group name", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		group, err := client.UpdateGroup("group123", "")
@@ -329,7 +329,7 @@ func TestUpdateGroup(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -346,7 +346,7 @@ func TestUpdateGroup(t *testing.T) {
 	})
 
 	t.Run("not found error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
@@ -363,7 +363,7 @@ func TestUpdateGroup(t *testing.T) {
 	})
 
 	t.Run("invalid JSON response", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
@@ -382,7 +382,7 @@ func TestUpdateGroup(t *testing.T) {
 
 func TestAddCidToGroup(t *testing.T) {
 	t.Run("successful add CID to group", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123/cids", r.URL.Path)
@@ -406,7 +406,7 @@ func TestAddCidToGroup(t *testing.T) {
 	})
 
 	t.Run("empty group ID", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.AddCidToGroup("", []string{"cid1", "cid2"})
@@ -416,7 +416,7 @@ func TestAddCidToGroup(t *testing.T) {
 	})
 
 	t.Run("empty CIDs list", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.AddCidToGroup("group123", []string{})
@@ -426,7 +426,7 @@ func TestAddCidToGroup(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -444,7 +444,7 @@ func TestAddCidToGroup(t *testing.T) {
 
 func TestRemoveCidFromGroup(t *testing.T) {
 	t.Run("successful remove CID from group", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123/cids", r.URL.Path)
@@ -468,7 +468,7 @@ func TestRemoveCidFromGroup(t *testing.T) {
 	})
 
 	t.Run("empty group ID", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.RemoveCidFromGroup("", []string{"cid1", "cid2"})
@@ -478,7 +478,7 @@ func TestRemoveCidFromGroup(t *testing.T) {
 	})
 
 	t.Run("empty CIDs list", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.RemoveCidFromGroup("group123", []string{})
@@ -488,7 +488,7 @@ func TestRemoveCidFromGroup(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -504,7 +504,7 @@ func TestRemoveCidFromGroup(t *testing.T) {
 	})
 
 	t.Run("multiple CIDs removal", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123/cids", r.URL.Path)
@@ -528,7 +528,7 @@ func TestRemoveCidFromGroup(t *testing.T) {
 
 func TestRemoveGroup(t *testing.T) {
 	t.Run("successful group removal", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, "/groups/group123", r.URL.Path)
@@ -545,7 +545,7 @@ func TestRemoveGroup(t *testing.T) {
 	})
 
 	t.Run("empty group ID", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
 		err := client.RemoveGroup("")
@@ -555,7 +555,7 @@ func TestRemoveGroup(t *testing.T) {
 	})
 
 	t.Run("server error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -571,7 +571,7 @@ func TestRemoveGroup(t *testing.T) {
 	})
 
 	t.Run("not found error", func(t *testing.T) {
-		auth := &auth{jwt: "valid_jwt_token"}
+		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
@@ -587,7 +587,7 @@ func TestRemoveGroup(t *testing.T) {
 	})
 
 	t.Run("unauthorized error", func(t *testing.T) {
-		auth := &auth{jwt: "invalid_jwt_token"}
+		auth := &Auth{jwt: "invalid_jwt_token"}
 		client := New(auth)
 		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
