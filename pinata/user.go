@@ -172,6 +172,16 @@ type ListApiKeysOptions struct {
 	Offset     int    `json:"offset,omitempty"`
 }
 
+// pinnedFileCountResponse represents the response from the Pinata API for the total count and size of pinned files.
+// PinCount is the total number of files pinned.
+// PinSizeTotal is the total size of all pinned files.
+// PinSizeWithReplicationsTotal is the total size of all pinned files including replications.
+type pinnedFileCountResponse struct {
+	PinCount                     int `json:"pin_count,omitempty"`
+	PinSizeTotal                 int `json:"pin_size_total,omitempty"`
+	PinSizeWithReplicationsTotal int `json:"pin_size_with_replications_total,omitempty"`
+}
+
 // GenerateApiKey generates a new API key for the Pinata platform.
 //
 // The provided GenerateApiKeyOptions struct specifies the options for the new API key, such as the name, permissions, and expiration.
@@ -188,7 +198,7 @@ func (c *Client) GenerateApiKey(options *GenerateApiKeyOptions) (*secret, error)
 		SetJSONBody(options)
 
 	if err != nil {
-		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return nil, fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	var response secret
@@ -216,7 +226,7 @@ func (c *Client) GenerateApiKeyV3(options *GenerateApiKeyOptions) (*secret, erro
 		SetJSONBody(options)
 
 	if err != nil {
-		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return nil, fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	var response secret
@@ -273,7 +283,7 @@ func (c *Client) RevokeApiKey(apiKey string) error {
 	req, err := c.NewRequest(http.MethodPut, "/users/revokeApiKey").
 		SetJSONBody(payload)
 	if err != nil {
-		return fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	err = req.Send(nil)
@@ -299,4 +309,30 @@ func (c *Client) RevokeApiKeyV3(key string) error {
 		return err
 	}
 	return nil
+}
+
+// PinnedFileCount returns the total number of files pinned by the user.
+// If an error occurs while fetching the pinned file count, the error is returned.
+func (c *Client) PinnedFileCount() (int, error) {
+	var response pinnedFileCountResponse
+	err := c.NewRequest(http.MethodGet, "/data/userPinnedDataTotal").
+		Send(&response)
+
+	if err != nil {
+		return 0, err
+	}
+	return response.PinCount, nil
+}
+
+// TotalStorageSize returns the total number of bytes pinned by the user and the total number of bytes pinned with replications.
+// If an error occurs while fetching the pinned file size, the error is returned.
+func (c *Client) TotalStorageSize() (int, int, error) {
+	var response pinnedFileCountResponse
+	err := c.NewRequest(http.MethodGet, "/data/userPinnedDataTotal").
+		Send(&response)
+
+	if err != nil {
+		return 0, 0, err
+	}
+	return response.PinSizeTotal, response.PinSizeWithReplicationsTotal, nil
 }

@@ -30,7 +30,7 @@ func (c *Client) AddCidSignature(cid, signature string) (*cidSignature, error) {
 		AddPathParam("cid", cid).
 		SetJSONBody(payload)
 	if err != nil {
-		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return nil, fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	var response cidSignature

@@ -2,16 +2,20 @@ package pinata
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestPinFileToIPFS(t *testing.T) {
+func TestPinFile(t *testing.T) {
 	t.Run("successful file pinning", func(t *testing.T) {
 		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
@@ -46,7 +50,7 @@ func TestPinFileToIPFS(t *testing.T) {
 		defer mockServer.Close()
 		client.baseURL = mockServer.URL
 
-		response, err := client.PinFileToIPFS(tempFile.Name(), nil)
+		response, err := client.PinFile(tempFile.Name(), nil)
 
 		require.NoError(t, err)
 		require.NotNil(t, response)
@@ -59,7 +63,7 @@ func TestPinFileToIPFS(t *testing.T) {
 		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
-		response, err := client.PinFileToIPFS("", nil)
+		response, err := client.PinFile("", nil)
 
 		require.Error(t, err)
 		require.Nil(t, response)
@@ -70,7 +74,7 @@ func TestPinFileToIPFS(t *testing.T) {
 		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
-		response, err := client.PinFileToIPFS("/path/to/non/existent/file.txt", nil)
+		response, err := client.PinFile("/path/to/non/existent/file.txt", nil)
 
 		require.Error(t, err)
 		require.Nil(t, response)
@@ -111,7 +115,7 @@ func TestPinFileToIPFS(t *testing.T) {
 				Name: "test_name",
 			},
 		}
-		response, err := client.PinFileToIPFS(tempFile.Name(), options)
+		response, err := client.PinFile(tempFile.Name(), options)
 
 		require.NoError(t, err)
 		require.NotNil(t, response)
@@ -138,7 +142,7 @@ func TestPinFileToIPFS(t *testing.T) {
 		defer mockServer.Close()
 		client.baseURL = mockServer.URL
 
-		response, err := client.PinFileToIPFS(tempFile.Name(), nil)
+		response, err := client.PinFile(tempFile.Name(), nil)
 
 		require.Error(t, err)
 		require.Nil(t, response)
@@ -146,7 +150,7 @@ func TestPinFileToIPFS(t *testing.T) {
 	})
 }
 
-func TestPinJSONToIPFS(t *testing.T) {
+func TestPinJSON(t *testing.T) {
 	t.Run("successful JSON pinning", func(t *testing.T) {
 		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
@@ -169,7 +173,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 		client.baseURL = mockServer.URL
 
 		data := map[string]string{"key": "value"}
-		response, err := client.PinJSONToIPFS(data, nil)
+		response, err := client.PinJSON(data, nil)
 
 		require.NoError(t, err)
 		require.NotNil(t, response)
@@ -182,7 +186,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 		auth := &Auth{jwt: "valid_jwt_token"}
 		client := New(auth)
 
-		response, err := client.PinJSONToIPFS(nil, nil)
+		response, err := client.PinJSON(nil, nil)
 
 		require.Error(t, err)
 		require.Nil(t, response)
@@ -226,7 +230,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 				Name: "test_json",
 			},
 		}
-		response, err := client.PinJSONToIPFS(data, options)
+		response, err := client.PinJSON(data, options)
 
 		require.NoError(t, err)
 		require.NotNil(t, response)
@@ -247,7 +251,7 @@ func TestPinJSONToIPFS(t *testing.T) {
 		client.baseURL = mockServer.URL
 
 		data := map[string]bool{"flag": true}
-		response, err := client.PinJSONToIPFS(data, nil)
+		response, err := client.PinJSON(data, nil)
 
 		require.Error(t, err)
 		require.Nil(t, response)
@@ -730,5 +734,352 @@ func TestDeleteFile(t *testing.T) {
 
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "Unauthorized")
+	})
+}
+
+func TestDeleteFilesAsync(t *testing.T) {
+	t.Run("successful delete multiple files", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Contains(t, r.URL.Path, "/pinning/unpin/")
+			require.Equal(t, http.MethodDelete, r.Method)
+			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
+
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		cids := []string{"QmTestCID1", "QmTestCID2", "QmTestCID3"}
+		errs := client.DeleteFilesAsync(cids)
+
+		require.Empty(t, errs)
+	})
+
+	t.Run("empty cids slice", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		errs := client.DeleteFilesAsync([]string{})
+
+		require.Len(t, errs, 1)
+		require.Contains(t, errs[0].Error(), "at least one CID is required")
+	})
+
+	t.Run("partial success with some errors", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.Contains(r.URL.Path, "QmTestCID2") {
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte(`{"error":"File not found"}`))
+			} else {
+				w.WriteHeader(http.StatusOK)
+			}
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		cids := []string{"QmTestCID1", "QmTestCID2", "QmTestCID3"}
+		errs := client.DeleteFilesAsync(cids)
+
+		require.Len(t, errs, 1)
+		require.Contains(t, errs[0].Error(), "File not found")
+	})
+
+	t.Run("all requests fail", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error":"Internal server error"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		cids := []string{"QmTestCID1", "QmTestCID2", "QmTestCID3"}
+		errs := client.DeleteFilesAsync(cids)
+
+		require.Len(t, errs, 3)
+		for _, err := range errs {
+			require.Contains(t, err.Error(), "Internal server error")
+		}
+	})
+
+	t.Run("large number of CIDs", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		cids := make([]string, 100)
+		for i := 0; i < 100; i++ {
+			cids[i] = fmt.Sprintf("QmTestCID%d", i)
+		}
+		errs := client.DeleteFilesAsync(cids)
+
+		require.Empty(t, errs)
+	})
+}
+
+func TestDeleteFileWorker(t *testing.T) {
+	t.Run("successful deletion of multiple files", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		jobs := make(chan string, 3)
+		errors := make(chan error, 3)
+
+		jobs <- "QmTestCID1"
+		jobs <- "QmTestCID2"
+		jobs <- "QmTestCID3"
+		close(jobs)
+
+		go deleteFileWorker(client, jobs, errors)
+
+		for i := 0; i < 3; i++ {
+			err := <-errors
+			require.NoError(t, err)
+		}
+	})
+
+	t.Run("partial success with some errors", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.Contains(r.URL.Path, "QmTestCID2") {
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte(`{"error":"File not found"}`))
+			} else {
+				w.WriteHeader(http.StatusOK)
+			}
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		jobs := make(chan string, 3)
+		errors := make(chan error, 3)
+
+		jobs <- "QmTestCID1"
+		jobs <- "QmTestCID2"
+		jobs <- "QmTestCID3"
+		close(jobs)
+
+		go deleteFileWorker(client, jobs, errors)
+
+		errorCount := 0
+		for i := 0; i < 3; i++ {
+			err := <-errors
+			if err != nil {
+				errorCount++
+				require.Contains(t, err.Error(), "failed to delete CID QmTestCID2")
+			}
+		}
+		require.Equal(t, 1, errorCount)
+	})
+
+	t.Run("all deletions fail", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error":"Internal server error"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		jobs := make(chan string, 3)
+		errors := make(chan error, 3)
+
+		jobs <- "QmTestCID1"
+		jobs <- "QmTestCID2"
+		jobs <- "QmTestCID3"
+		close(jobs)
+
+		go deleteFileWorker(client, jobs, errors)
+
+		for i := 0; i < 3; i++ {
+			err := <-errors
+			require.Error(t, err)
+			require.Contains(t, err.Error(), "failed to delete CID")
+			require.Contains(t, err.Error(), "Internal server error")
+		}
+	})
+
+	t.Run("empty job channel", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		jobs := make(chan string)
+		errors := make(chan error)
+
+		close(jobs)
+
+		go deleteFileWorker(client, jobs, errors)
+
+		select {
+		case err := <-errors:
+			t.Fatalf("Unexpected error: %v", err)
+		case <-time.After(100 * time.Millisecond):
+			// If no error is received after a short timeout, the test passes
+		}
+	})
+}
+
+func TestPinFilesAsync(t *testing.T) {
+	t.Run("successful pinning of multiple files", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"IpfsHash":"QmTest","PinSize":100,"Timestamp":"2023-05-15T12:00:00Z"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		tempDir, err := os.MkdirTemp("", "test_pin_files")
+		require.NoError(t, err)
+		defer os.RemoveAll(tempDir)
+
+		filePaths := []string{
+			filepath.Join(tempDir, "file1.txt"),
+			filepath.Join(tempDir, "file2.txt"),
+			filepath.Join(tempDir, "file3.txt"),
+		}
+
+		for _, path := range filePaths {
+			err := os.WriteFile(path, []byte("test content"), 0644)
+			require.NoError(t, err)
+		}
+
+		responses, err := client.PinFilesAsync(filePaths, nil)
+
+		require.NoError(t, err)
+		require.Len(t, responses, 3)
+		for _, response := range responses {
+			require.Equal(t, "QmTest", response.IpfsHash)
+			require.Equal(t, 100, response.PinSize)
+			require.Equal(t, "2023-05-15T12:00:00Z", response.Timestamp)
+		}
+	})
+
+	t.Run("empty file paths slice", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		responses, err := client.PinFilesAsync([]string{}, nil)
+
+		require.Error(t, err)
+		require.Nil(t, responses)
+		require.Contains(t, err.Error(), "at least one filepath is required")
+	})
+
+	t.Run("with pin options", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			err := r.ParseMultipartForm(10 << 20)
+			require.NoError(t, err)
+
+			pinataOptions := r.FormValue("pinataOptions")
+			require.NotEmpty(t, pinataOptions)
+
+			var options PinOptions
+			err = json.Unmarshal([]byte(pinataOptions), &options)
+			require.NoError(t, err)
+			require.Equal(t, "test_name", options.PinataMetadata.Name)
+
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"IpfsHash":"QmTest","PinSize":100,"Timestamp":"2023-05-15T12:00:00Z"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		tempDir, err := os.MkdirTemp("", "test_pin_files")
+		require.NoError(t, err)
+		defer os.RemoveAll(tempDir)
+
+		filePaths := []string{
+			filepath.Join(tempDir, "file1.txt"),
+			filepath.Join(tempDir, "file2.txt"),
+		}
+
+		for _, path := range filePaths {
+			err := os.WriteFile(path, []byte("test content"), 0644)
+			require.NoError(t, err)
+		}
+
+		options := []PinOptions{
+			{
+				PinataMetadata: PinataMetadata{
+					Name: "test_name",
+				},
+			},
+			{
+				PinataMetadata: PinataMetadata{
+					Name: "test_name",
+				},
+			},
+		}
+
+		responses, err := client.PinFilesAsync(filePaths, &options)
+
+		require.NoError(t, err)
+		require.Len(t, responses, 2)
+		for _, response := range responses {
+			require.Equal(t, "QmTest", response.IpfsHash)
+			require.Equal(t, 100, response.PinSize)
+			require.Equal(t, "2023-05-15T12:00:00Z", response.Timestamp)
+		}
+	})
+
+	t.Run("mismatched options length", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+
+		tempDir, err := os.MkdirTemp("", "test_pin_files")
+		require.NoError(t, err)
+		defer os.RemoveAll(tempDir)
+
+		filePaths := []string{
+			filepath.Join(tempDir, "file1.txt"),
+			filepath.Join(tempDir, "file2.txt"),
+		}
+
+		for _, path := range filePaths {
+			err := os.WriteFile(path, []byte("test content"), 0644)
+			require.NoError(t, err)
+		}
+
+		options := []PinOptions{
+			{
+				PinataMetadata: PinataMetadata{
+					Name: "test_name",
+				},
+			},
+		}
+
+		responses, err := client.PinFilesAsync(filePaths, &options)
+
+		require.Error(t, err)
+		require.Nil(t, responses)
 	})
 }

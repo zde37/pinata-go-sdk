@@ -27,7 +27,7 @@ func (p *PinataClient) TestAuthentication() error {
 	return nil
 }
 
-func (p *PinataClient) PinFile(file string) error {
+func (p *PinataClient) PinFile(filePath string) error {
 	options := &pinata.PinOptions{
 		PinataMetadata: pinata.PinataMetadata{
 			Name: "hi.txt",
@@ -40,7 +40,7 @@ func (p *PinataClient) PinFile(file string) error {
 			CidVersion: 1,
 		},
 	}
-	response, err := p.client.PinFileToIPFS(file, options)
+	response, err := p.client.PinFileToIPFS(filePath, options)
 	if err != nil {
 		return err
 	}
