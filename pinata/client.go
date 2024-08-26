@@ -36,7 +36,7 @@ func New(auth *Auth) *Client {
 	return &Client{
 		baseURL: BaseURL,
 		httpClient: &http.Client{
-			Timeout:   time.Second * 30,
+			Timeout:   time.Second * 90,
 			Transport: transport,
 		},
 		auth:      auth,

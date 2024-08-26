@@ -512,3 +512,175 @@ func TestRevokeApiKeyV3(t *testing.T) {
 		require.Contains(t, err.Error(), "Unauthorized")
 	})
 }
+
+func TestPinnedFileCount(t *testing.T) {
+	t.Run("successful pinned file count", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/data/userPinnedDataTotal", r.URL.Path)
+			require.Equal(t, http.MethodGet, r.Method)
+			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
+
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"pin_count": 42}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		count, err := client.PinnedFileCount()
+
+		require.NoError(t, err)
+		require.Equal(t, 42, count)
+	})
+
+	t.Run("server error", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error":"Internal server error"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		count, err := client.PinnedFileCount()
+
+		require.Error(t, err)
+		require.Equal(t, 0, count)
+		require.Contains(t, err.Error(), "Internal server error")
+	})
+
+	t.Run("invalid JSON response", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"pin_count": "not a number"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		count, err := client.PinnedFileCount()
+
+		require.Error(t, err)
+		require.Equal(t, 0, count)
+		require.Contains(t, err.Error(), "json: cannot unmarshal")
+	})
+
+	t.Run("unauthorized request", func(t *testing.T) {
+		auth := &Auth{jwt: "invalid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(`{"error":"Unauthorized"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		count, err := client.PinnedFileCount()
+
+		require.Error(t, err)
+		require.Equal(t, 0, count)
+		require.Contains(t, err.Error(), "Unauthorized")
+	})
+
+	t.Run("network error", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		client.baseURL = "http://invalid-url"
+
+		count, err := client.PinnedFileCount()
+
+		require.Error(t, err)
+		require.Equal(t, 0, count)
+	})
+}
+
+func TestTotalStorageSize(t *testing.T) {
+	t.Run("successful total storage size retrieval", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/data/userPinnedDataTotal", r.URL.Path)
+			require.Equal(t, http.MethodGet, r.Method)
+			require.Equal(t, "Bearer valid_jwt_token", r.Header.Get("Authorization"))
+
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"pin_size_total": 1000, "pin_size_with_replications_total": 2000}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		pinSizeTotal, pinSizeWithReplicationsTotal, err := client.TotalStorageSize()
+
+		require.NoError(t, err)
+		require.Equal(t, 1000, pinSizeTotal)
+		require.Equal(t, 2000, pinSizeWithReplicationsTotal)
+	})
+
+	t.Run("server error", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"error":"Internal server error"}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		pinSizeTotal, pinSizeWithReplicationsTotal, err := client.TotalStorageSize()
+
+		require.Error(t, err)
+		require.Equal(t, 0, pinSizeTotal)
+		require.Equal(t, 0, pinSizeWithReplicationsTotal)
+		require.Contains(t, err.Error(), "Internal server error")
+	})
+
+	t.Run("invalid JSON response", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"pin_size_total": "not a number", "pin_size_with_replications_total": 2000}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		pinSizeTotal, pinSizeWithReplicationsTotal, err := client.TotalStorageSize()
+
+		require.Error(t, err)
+		require.Equal(t, 0, pinSizeTotal)
+		require.Equal(t, 0, pinSizeWithReplicationsTotal)
+		require.Contains(t, err.Error(), "json: cannot unmarshal")
+	})
+
+	t.Run("missing fields in response", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{}`))
+		}))
+		defer mockServer.Close()
+		client.baseURL = mockServer.URL
+
+		pinSizeTotal, pinSizeWithReplicationsTotal, err := client.TotalStorageSize()
+
+		require.NoError(t, err)
+		require.Equal(t, 0, pinSizeTotal)
+		require.Equal(t, 0, pinSizeWithReplicationsTotal)
+	})
+
+	t.Run("network error", func(t *testing.T) {
+		auth := &Auth{jwt: "valid_jwt_token"}
+		client := New(auth)
+		client.baseURL = "http://invalid-url"
+
+		pinSizeTotal, pinSizeWithReplicationsTotal, err := client.TotalStorageSize()
+
+		require.Error(t, err)
+		require.Equal(t, 0, pinSizeTotal)
+		require.Equal(t, 0, pinSizeWithReplicationsTotal)
+	})
+}

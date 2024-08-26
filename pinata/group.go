@@ -37,7 +37,7 @@ func (c *Client) CreateGroup(groupName string) (*Group, error) {
 
 	req, err := c.NewRequest(http.MethodPost, "/groups").SetJSONBody(payload)
 	if err != nil {
-		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return nil, fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	var response Group
@@ -105,7 +105,7 @@ func (c *Client) UpdateGroup(groupID, newGroupName string) (*Group, error) {
 		AddPathParam("id", groupID).
 		SetJSONBody(payload)
 	if err != nil {
-		return nil, fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return nil, fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	var response Group
@@ -130,7 +130,7 @@ func (c *Client) AddCidToGroup(groupID string, cids []string) error {
 		AddPathParam("id", groupID).
 		SetJSONBody(payload)
 	if err != nil {
-		return fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	err = req.Send(nil)
@@ -154,7 +154,7 @@ func (c *Client) RemoveCidFromGroup(groupID string, cids []string) error {
 		AddPathParam("id", groupID).
 		SetJSONBody(payload)
 	if err != nil {
-		return fmt.Errorf("ERR: failed to set JSON body: %w", err)
+		return fmt.Errorf("failed to set JSON body: %w", err)
 	}
 
 	err = req.Send(nil)

@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 		require.NotNil(t, client.httpClient)
 		require.NotNil(t, client.transport)
 
-		require.Equal(t, 30*time.Second, client.httpClient.Timeout)
+		require.Equal(t, 90*time.Second, client.httpClient.Timeout)
 
 		transport, ok := client.httpClient.Transport.(*http.Transport)
 		require.True(t, ok)
